@@ -7,7 +7,7 @@ class ClientMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    ClientMainWindow(QWidget *parent = Q_NULLPTR);
+    explicit ClientMainWindow(QWidget *parent = nullptr);
 
 private:
     Ui::ClientMainWindowClass ui;

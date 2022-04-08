@@ -7,7 +7,7 @@ class ServerMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    ServerMainWindow(QWidget *parent = Q_NULLPTR);
+    explicit ServerMainWindow(QWidget *parent = nullptr);
 
 private:
     Ui::ServerMainWindowClass ui;
