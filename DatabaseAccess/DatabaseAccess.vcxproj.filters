@@ -19,13 +19,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="securefiletransfer_global.h">
+    <ClInclude Include="databaseaccess_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <QtMoc Include="SecureFileTransfer.h">
+    <QtMoc Include="DatabaseAccess.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <ClCompile Include="SecureFileTransfer.cpp">
+    <ClCompile Include="DatabaseAccess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClInclude Include="stdafx.h">
@@ -34,20 +34,12 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClInclude Include="AppLayerMessage.h">
+    <ClInclude Include="User.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="SslServer.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="SslServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AppLayerMessage.cpp">
+    <ClCompile Include="User.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

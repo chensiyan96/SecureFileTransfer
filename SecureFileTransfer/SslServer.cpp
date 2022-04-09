@@ -19,7 +19,7 @@ SslServer::SslServer(QObject *parent)
 
 void SslServer::incomingConnection(qintptr socketDescriptor)
 {
-    QSslSocket* serverSocket = new QSslSocket;
+    auto serverSocket = new QSslSocket(this);
     serverSocket->setLocalCertificate(certificate);
     serverSocket->setPrivateKey(privateKey);
     serverSocket->setPeerVerifyMode(QSslSocket::VerifyNone);

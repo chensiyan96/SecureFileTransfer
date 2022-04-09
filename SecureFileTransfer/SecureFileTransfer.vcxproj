@@ -97,8 +97,10 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AppLayerMessage.h" />
     <ClInclude Include="securefiletransfer_global.h" />
     <QtMoc Include="SecureFileTransfer.h" />
+    <ClCompile Include="AppLayerMessage.cpp" />
     <ClCompile Include="SecureFileTransfer.cpp" />
     <QtMoc Include="SslServer.h" />
     <ClInclude Include="stdafx.h" />
