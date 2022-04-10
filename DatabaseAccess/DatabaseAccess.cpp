@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "DatabaseAccess.h"
+#include "User.h"
 
 DatabaseAccess::DatabaseAccess()
 {
@@ -26,25 +27,17 @@ DatabaseAccess::DatabaseAccess()
         "[id] integer primary key autoincrement,"
         "[username] varchar(255) not null unique,"
         "[password] binary(32) not null,"
-        "[salt] binary(16) not null);");   
+        "[salt] binary(16) not null);");
     qDebug() << db.tables();
     qDebug() << query.lastError();
 
-    query.prepare("insert into [user]([username], [password], [salt]) values(?, ?, ?);");
-    query.addBindValue(QString("root"));
-    query.addBindValue(QByteArray(32, Qt::Uninitialized));
-    query.addBindValue(QByteArray(16, Qt::Uninitialized));
-    query.exec();
-    qDebug() << query.lastError();
+    dao::User user;
+    user.username = QString("root");
+    user.password = QByteArray(32, Qt::Uninitialized);
+    user.salt = QByteArray(16, Qt::Uninitialized);
+    dao::insertUser(user);
 
-    query.exec("select * from [user]");
-    qDebug() << query.lastError();
-
-    while (query.next()) //一行一行遍历
-    {
-        qDebug() << query.value(0).toInt();
-        qDebug() << query.value(1).toString();
-        qDebug() << query.value(2).toByteArray();
-        qDebug() << query.value(3).toByteArray();
-    }
+    dao::selectUserByName("root", user);
+    dao::updateUserPassword(user);
+    dao::deleteUserById(user.id);
 }

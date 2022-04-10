@@ -20,7 +20,7 @@ struct AppLayerMessage
 	virtual ~AppLayerMessage() = default;
 
 	// 序列化成字节数组，然后可以写入TCP流
-	virtual QByteArray serialize() = 0;
+	virtual QByteArray serialize() const = 0;
 
 	const quint32 id; // 报文的序列号，用于匹配响应和请求
 	const Type type; // 报文类型
@@ -48,6 +48,11 @@ struct Response : public AppLayerMessage
 struct RegisterRequest : public Request
 {
 	RegisterRequest(quint32 id) : Request(id, Type::REGISTER) {}
+	RegisterRequest(quint32 id, const char* data)
+		: Request(id, Type::REGISTER) { deserialize(data); }
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
 
 	QString username;
 	QByteArray password; // SHA256
@@ -57,17 +62,27 @@ struct RegisterRequest : public Request
 struct RegisterResponse : public Response
 {
 	RegisterResponse(quint32 id) : Response(id, Type::REGISTER) {}
+	RegisterResponse(quint32 id, const char* data)
+		: Response(id, Type::REGISTER) { deserialize(data); }
 
-	enum class Result
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
 	{
 		SUCCESS, INVALID_ARGUMENT, REPEAT_USERNAME
-	} result;
+	} result = Result::SUCCESS;
 };
 
 // 用户登录请求
 struct LoginRequest : public Request
 {
-	LoginRequest(quint32 id) : Request(id, Type::REGISTER) {}
+	LoginRequest(quint32 id) : Request(id, Type::LOGIN) {}
+	LoginRequest(quint32 id, const char* data)
+		: Request(id, Type::LOGIN) { deserialize(data); }
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
 
 	QString username;
 	QByteArray password; // SHA256
@@ -76,10 +91,15 @@ struct LoginRequest : public Request
 // 用户登录响应
 struct LoginResponse : public Response
 {
-	LoginResponse(quint32 id) : Response(id, Type::REGISTER) {}
+	LoginResponse(quint32 id) : Response(id, Type::LOGIN) {}
+	LoginResponse(quint32 id, const char* data)
+		: Response(id, Type::LOGIN) { deserialize(data); }
 
-	enum class Result
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
 	{
 		SUCCESS, INVALID_ARGUMENT, WRONG_USERNAME_OR_PASSWORD
-	} result;
+	} result = Result::SUCCESS;
 };

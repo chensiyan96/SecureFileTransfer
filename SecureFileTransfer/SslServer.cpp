@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "SslServer.h"
+#include "AppLayerMessage.h"
 
 SslServer::SslServer(QObject *parent)
 	: QTcpServer(parent)
@@ -19,26 +20,28 @@ SslServer::SslServer(QObject *parent)
 
 void SslServer::incomingConnection(qintptr socketDescriptor)
 {
-    auto serverSocket = new QSslSocket(this);
-    serverSocket->setLocalCertificate(certificate);
-    serverSocket->setPrivateKey(privateKey);
-    serverSocket->setPeerVerifyMode(QSslSocket::VerifyNone);
-    if (serverSocket->setSocketDescriptor(socketDescriptor)) {
-        addPendingConnection(serverSocket);
-        connect(serverSocket, &QSslSocket::encrypted, this, &SslServer::ready);
-        serverSocket->startServerEncryption();
+    auto socket = new QSslSocket(this);
+    socket->setLocalCertificate(certificate);
+    socket->setPrivateKey(privateKey);
+    socket->setPeerVerifyMode(QSslSocket::VerifyNone);
+    if (socket->setSocketDescriptor(socketDescriptor)) {
+        addPendingConnection(socket);
+        connect(socket, &QSslSocket::encrypted, this, &SslServer::ready);
+        socket->startServerEncryption();
+        socket->waitForReadyRead();
+        Request::deserialize(socket->readAll());
     }
     else {
-        delete serverSocket;
+        delete socket;
     }
 }
 
 void SslServer::ready()
 {
-    QMessageBox::information(nullptr, u8"消息", u8"加密完成", QMessageBox::Ok);
+    //QMessageBox::information(nullptr, u8"消息", u8"加密完成", QMessageBox::Ok);
 }
 
 void SslServer::errors(const QList<QSslError>& err)
 {
-    QMessageBox::critical(nullptr, u8"错误", u8"加密失败", QMessageBox::Ok);
+    //QMessageBox::critical(nullptr, u8"错误", u8"加密失败", QMessageBox::Ok);
 }

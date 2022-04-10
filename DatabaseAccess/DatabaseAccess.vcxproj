@@ -100,7 +100,7 @@
     <ClCompile Include="User.cpp" />
     <ClInclude Include="databaseaccess_global.h" />
     <ClInclude Include="User.h" />
-    <QtMoc Include="DatabaseAccess.h" />
+    <ClInclude Include="DatabaseAccess.h" />
     <ClCompile Include="DatabaseAccess.cpp" />
     <ClInclude Include="stdafx.h" />
     <ClCompile Include="stdafx.cpp">

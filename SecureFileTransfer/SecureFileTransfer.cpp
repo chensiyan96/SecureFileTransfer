@@ -2,6 +2,7 @@
 
 #include "SecureFileTransfer.h"
 #include "SslServer.h"
+#include "AppLayerMessage.h"
 
 void SecureFileTransfer::testServer()
 {
@@ -23,10 +24,18 @@ void SecureFileTransfer::testClient()
 	QThread::sleep(1);
 	auto client = new QSslSocket;
 	client->setPeerVerifyMode(QSslSocket::QueryPeer);
-	client->connectToHostEncrypted("localhost", 8888);
+	client->connectToHost("127.0.0.1", 8888);
+	client->waitForConnected();
+	client->startClientEncryption();
+	client->waitForEncrypted();
+	auto requset = new RegisterRequest(1);
+	requset->username = "root";
+	requset->password = QCryptographicHash::hash("123456", QCryptographicHash::Algorithm::Sha256);
+	auto b = requset->serialize();
+	client->write(b);
 }
 
 void SecureFileTransfer::newConnectionSlot()
 {
-	QMessageBox::information(nullptr, u8"消息", u8"连接成功", QMessageBox::Ok);
+	//QMessageBox::information(nullptr, u8"消息", u8"连接成功", QMessageBox::Ok);
 }

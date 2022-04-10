@@ -32,12 +32,12 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>5.14.2_msvc2017_64</QtInstall>
-    <QtModules>core;gui;widgets;concurrent</QtModules>
+    <QtModules>core;network;gui;widgets;concurrent</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>5.14.2_msvc2017_64</QtInstall>
-    <QtModules>core;gui;widgets;concurrent</QtModules>
+    <QtModules>core;network;gui;widgets;concurrent</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -99,10 +99,18 @@
     <QtUic Include="ClientMainWindow.ui" />
     <QtMoc Include="ClientMainWindow.h" />
     <ClCompile Include="ClientMainWindow.cpp" />
+    <ClCompile Include="ConnectWidget.cpp" />
     <ClCompile Include="main.cpp" />
     <None Include="Client.ico" />
+    <QtUic Include="ConnectWidget.ui" />
+    <QtUic Include="RegisterWidget.ui" />
     <ResourceCompile Include="Client.rc" />
+    <QtMoc Include="RegisterWidget.h" />
+    <QtMoc Include="StateController.h" />
+    <QtMoc Include="ConnectWidget.h" />
     <ClInclude Include="stdafx.h" />
+    <ClCompile Include="RegisterWidget.cpp" />
+    <ClCompile Include="StateController.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">Create</PrecompiledHeader>

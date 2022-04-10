@@ -1,6 +1,6 @@
-#include "ServerMainWindow.h"
 #include "stdafx.h"
-#include <QtWidgets/QApplication>
+
+#include "ServerMainWindow.h"
 
 int main(int argc, char *argv[])
 {

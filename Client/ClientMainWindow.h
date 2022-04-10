@@ -2,6 +2,8 @@
 
 #include "ui_ClientMainWindow.h"
 
+#include "StateController.h"
+
 class ClientMainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -9,6 +11,9 @@ class ClientMainWindow : public QMainWindow
 public:
     explicit ClientMainWindow(QWidget *parent = nullptr);
 
+    void startStateController();
+
 private:
     Ui::ClientMainWindowClass ui;
+    StateController stateController;
 };
