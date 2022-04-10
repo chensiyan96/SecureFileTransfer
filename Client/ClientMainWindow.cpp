@@ -11,8 +11,3 @@ ClientMainWindow::ClientMainWindow(QWidget *parent)
 {
     ui.setupUi(this);
 }
-
-void ClientMainWindow::startStateController()
-{
-    stateController.startStateMachine();
-}

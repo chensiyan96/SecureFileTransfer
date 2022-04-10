@@ -2,16 +2,21 @@
 
 #include "StateController.h"
 
+StateController* StateController::instance = nullptr;
+
 StateController::StateController(QObject* parent)
 	: QObject(parent)
 {
-	connectState = new ConnectState(this, &stateMachine);
+	connectState = new ConnectState(&stateMachine);
+	registerState = new RegisterState(&stateMachine);
+	loginState = new LoginState(&stateMachine);
 
 	stateMachine.addState(connectState);
-}
+	stateMachine.addState(registerState);
+	stateMachine.addState(loginState);
 
-void StateController::startStateMachine()
-{
+	connectState->addTransition(this, &StateController::connectedToServer, loginState);
+
 	stateMachine.setInitialState(connectState);
 	stateMachine.start();
 }
@@ -25,6 +30,16 @@ void StateController::connectToHost(QString host, quint16 port)
 	socket->connectToHostEncrypted(host, port);
 }
 
+void StateController::registerRequest(RegisterRequest* request)
+{
+	socket->write(request->serialize());
+}
+
+void StateController::loginRequest(LoginRequest* request)
+{
+	socket->write(request->serialize());
+}
+
 void StateController::encryptionSucceeded()
 {
 	connectState->encryptionSucceeded();
@@ -34,8 +49,6 @@ void StateController::encryptionSucceeded()
 void ConnectState::encryptionSucceeded()
 {
 	connectWidget->encryptionSucceeded();
-	QMessageBox::information(connectWidget.get(), u8"消息", u8"建立加密连接成功", QMessageBox::Ok);
-	connectWidget = nullptr;
 }
 
 void ConnectState::onEntry(QEvent* event)
@@ -44,10 +57,48 @@ void ConnectState::onEntry(QEvent* event)
 	this->connectWidget.reset(connectWidget);
 	connectWidget->setAttribute(Qt::WA_QuitOnClose, false);
 	connectWidget->show();
-	connect(connectWidget, &ConnectWidget::connectToHost, stateController, &StateController::connectToHost);
+	connect(connectWidget, &ConnectWidget::connectToHost, StateController::instance, &StateController::connectToHost);
 }
 
 void ConnectState::onExit(QEvent* event)
 {
 	connectWidget = nullptr;
+}
+
+void RegisterState::registerSucceeded()
+{
+	registerWidget->registerSucceeded();
+}
+
+void RegisterState::onEntry(QEvent* event)
+{
+	auto registerWidget = new RegisterWidget;
+	this->registerWidget.reset(registerWidget);
+	registerWidget->setAttribute(Qt::WA_QuitOnClose, false);
+	registerWidget->show();
+	connect(registerWidget, &RegisterWidget::registerRequest, StateController::instance, &StateController::registerRequest);
+}
+
+void RegisterState::onExit(QEvent* event)
+{
+	registerWidget = nullptr;
+}
+
+void LoginState::loginSucceeded()
+{
+	loginWidget->loginSucceeded();
+}
+
+void LoginState::onEntry(QEvent* event)
+{
+	auto loginWidget = new LoginWidget;
+	this->loginWidget.reset(loginWidget);
+	loginWidget->setAttribute(Qt::WA_QuitOnClose, false);
+	loginWidget->show();
+	connect(loginWidget, &LoginWidget::loginRequest, StateController::instance, &StateController::loginRequest);
+}
+
+void LoginState::onExit(QEvent* event)
+{
+	loginWidget = nullptr;
 }

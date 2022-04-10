@@ -9,11 +9,10 @@ class ConnectWidget : public QWidget
 public:
 	explicit ConnectWidget(QWidget *parent = nullptr);
 
+	void encryptionSucceeded();
+
 signals:
 	void connectToHost(QString host, quint16 port);
-
-public:
-	void encryptionSucceeded();
 
 private:
 	void onPushButtonConnectClicked();

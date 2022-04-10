@@ -21,6 +21,12 @@
       <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
       <Extensions>ts</Extensions>
     </Filter>
+    <Filter Include="Header Files\view">
+      <UniqueIdentifier>{a3d35d58-e02e-424a-8a92-5883224a2b24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\view">
+      <UniqueIdentifier>{79981fd2-422f-4594-9e58-db6fd09bc2ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="ServerMainWindow.qrc">
@@ -29,12 +35,6 @@
     <QtUic Include="ServerMainWindow.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtMoc Include="ServerMainWindow.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <ClCompile Include="ServerMainWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <None Include="Server.ico">
       <Filter>Resource Files</Filter>
     </None>
@@ -52,5 +52,13 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ServerMainWindow.cpp">
+      <Filter>Source Files\view</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="ServerMainWindow.h">
+      <Filter>Header Files\view</Filter>
+    </QtMoc>
   </ItemGroup>
 </Project>

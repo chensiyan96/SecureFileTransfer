@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ConnectWidget</class>
- <widget class="QWidget" name="ConnectWidget">
+ <class>LoginWidget</class>
+ <widget class="QWidget" name="LoginWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,23 +11,10 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string/>
+   <string>LoginWidget</string>
   </property>
   <layout class="QGridLayout" name="gridLayout" rowstretch="1,9,1" columnstretch="1,8,1">
    <item row="0" column="1">
-    <spacer name="verticalSpacer_4">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>18</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="2" column="1">
     <spacer name="verticalSpacer_3">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -40,48 +27,32 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="2">
+   <item row="1" column="0">
     <spacer name="horizontalSpacer_5">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>151</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="1" column="0">
-    <spacer name="horizontalSpacer_6">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>151</width>
+       <width>23</width>
        <height>20</height>
       </size>
      </property>
     </spacer>
    </item>
    <item row="1" column="1">
-    <layout class="QVBoxLayout" name="verticalLayout_4">
-     <property name="spacing">
-      <number>7</number>
-     </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QLabel" name="label_host">
+      <widget class="QLabel" name="label_username_2">
        <property name="text">
-        <string>主机</string>
+        <string>用户名</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_host">
+      <widget class="QLineEdit" name="lineEdit_username_2">
        <property name="text">
-        <string>127.0.0.1</string>
+        <string>root</string>
        </property>
        <property name="maxLength">
         <number>255</number>
@@ -92,22 +63,22 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_port">
+      <widget class="QLabel" name="label_password">
        <property name="text">
-        <string>端口</string>
+        <string>密码</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_port">
+      <widget class="QLineEdit" name="lineEdit_password">
        <property name="text">
-        <string>8888</string>
+        <string>123456</string>
        </property>
        <property name="maxLength">
-        <number>5</number>
+        <number>255</number>
        </property>
        <property name="echoMode">
-        <enum>QLineEdit::Normal</enum>
+        <enum>QLineEdit::Password</enum>
        </property>
       </widget>
      </item>
@@ -125,16 +96,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="label_connectionState">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <spacer name="horizontalSpacer_3">
+        <spacer name="horizontalSpacer_4">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -147,14 +111,14 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_connect">
+        <widget class="QPushButton" name="pushButton_login">
          <property name="text">
-          <string>连接</string>
+          <string>登录</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_4">
+        <spacer name="horizontalSpacer_3">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -169,6 +133,32 @@
       </layout>
      </item>
     </layout>
+   </item>
+   <item row="1" column="2">
+    <spacer name="horizontalSpacer_6">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>23</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="1">
+    <spacer name="verticalSpacer_4">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>18</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

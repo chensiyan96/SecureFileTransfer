@@ -13,6 +13,7 @@ ConnectWidget::ConnectWidget(QWidget *parent)
 void ConnectWidget::encryptionSucceeded()
 {
 	ui.label_connectionState->setText(u8"连接成功");
+	QMessageBox::information(this, u8"消息", u8"建立加密连接成功", QMessageBox::Ok);
 }
 
 void ConnectWidget::onPushButtonConnectClicked()

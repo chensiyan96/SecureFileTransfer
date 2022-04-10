@@ -2,13 +2,22 @@
 
 #include "ui_RegisterWidget.h"
 
+#include "../SecureFileTransfer/AppLayerMessage.h"
+
 class RegisterWidget : public QWidget
 {
 	Q_OBJECT
 
 public:
 	explicit RegisterWidget(QWidget *parent = nullptr);
-	~RegisterWidget();
+
+	void registerSucceeded();
+
+signals:
+	void registerRequest(RegisterRequest* request);
+
+private:
+	void onPushButtonRegisterClicked();
 
 private:
 	Ui::RegisterWidget ui;
