@@ -15,9 +15,18 @@ public:
 
 private:
 	QStateMachine stateMachine;
-	QScopedPointer<QSslSocket> socket;
 	class MainState* mainState;
 };
+
+inline bool operator==(const QScopedPointer<NetworkController>& a, const QScopedPointer<NetworkController>& b)
+{
+	return reinterpret_cast<size_t>(a.get()) == reinterpret_cast<size_t>(b.get());
+}
+
+inline uint qHash(const QScopedPointer<NetworkController>& a)
+{
+	return qHash(reinterpret_cast<size_t>(a.get()));
+}
 
 class MainState : public QState
 {
@@ -37,6 +46,6 @@ private:
 	void newConnection();
 
 private:
-	QScopedPointer<SslServer> sslServer;
-	//QSet<QScopedPointer<NetworkController>> allNetworkControllers;
+	QScopedPointer<SslServer> server;
+	QSet<QScopedPointer<NetworkController>> allNetworkControllers;
 };

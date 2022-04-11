@@ -14,21 +14,8 @@ public:
 public:
 	explicit StateController(QObject* parent = nullptr);
 
-	void connectToHost(QString host, quint16 port);
-	void registerRequest(QSharedPointer<RegisterRequest> request);
-	void loginRequest(QSharedPointer<LoginRequest> request);
-
-signals:
-	void connectedToServer(QSslSocket* socket);
-
-private:
-	void encryptionSucceeded();
-	void registerSucceeded();
-	void loginSucceeded();
-
 private:
 	QStateMachine stateMachine;
-	QScopedPointer<QSslSocket> socket;
 	class ConnectState* connectState = nullptr;
 	class RegisterState* registerState = nullptr;
 	class LoginState* loginState = nullptr;
@@ -41,15 +28,20 @@ class ConnectState : public QState
 public:
 	explicit ConnectState(QState* parent = nullptr) : QState(parent) {}
 
-public:
-	void encryptionSucceeded();
+signals:
+	void connectedToServer(QSslSocket* socket);
 
 protected:
 	void onEntry(QEvent* event) override;
 	void onExit(QEvent* event) override;
 	
 private:
+	void connectToHost(QString host, quint16 port);
+	void connectionSucceeded();
+
+private:
 	QScopedPointer<ConnectWidget> connectWidget;
+	QScopedPointer<QSslSocket> socket;
 };
 
 class RegisterState : public QState
@@ -59,11 +51,16 @@ class RegisterState : public QState
 public:
 	explicit RegisterState(QState* parent = nullptr) : QState(parent) {}
 
-	void registerSucceeded();
+signals:
+	void registerFinished();
 
 protected:
 	void onEntry(QEvent* event) override;
 	void onExit(QEvent* event) override;
+
+private:
+	void registerRequest(QSharedPointer<RegisterRequest> request);
+	void registerSucceeded();
 
 private:
 	QScopedPointer<RegisterWidget> registerWidget;
@@ -76,11 +73,16 @@ class LoginState : public QState
 public:
 	explicit LoginState(QState* parent = nullptr) : QState(parent) {}
 
-	void loginSucceeded();
+signals:
+	void loginFinished();
 
 protected:
 	void onEntry(QEvent* event) override;
 	void onExit(QEvent* event) override;
+
+private:
+	void loginRequest(QSharedPointer<LoginRequest> request);
+	void loginSucceeded();
 
 private:
 	QScopedPointer<LoginWidget> loginWidget;

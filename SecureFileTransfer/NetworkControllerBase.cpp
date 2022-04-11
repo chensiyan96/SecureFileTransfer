@@ -11,6 +11,6 @@ NetworkControllerBase::NetworkControllerBase(QObject *parent)
 
 void NetworkControllerBase::start(QSslSocket* socket)
 {
-	this->socket = socket;
 	socket->moveToThread(&workerThread);
+	this->socket.reset(socket);
 }

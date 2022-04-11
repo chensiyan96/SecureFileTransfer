@@ -16,52 +16,10 @@ StateController::StateController(QObject* parent)
 	stateMachine.addState(registerState);
 	stateMachine.addState(loginState);
 
-	connectState->addTransition(this, &StateController::connectedToServer, loginState);
+	connectState->addTransition(connectState, &ConnectState::connectedToServer, loginState);
 
 	stateMachine.setInitialState(connectState);
 	stateMachine.start();
-}
-
-void StateController::connectToHost(QString host, quint16 port)
-{
-	auto socket = new QSslSocket;
-	this->socket.reset(socket);
-	socket->setPeerVerifyMode(QSslSocket::QueryPeer);
-	connect(socket, &QSslSocket::encrypted, this, &StateController::encryptionSucceeded);
-	socket->connectToHostEncrypted(host, port);
-}
-
-void StateController::registerRequest(QSharedPointer<RegisterRequest> request)
-{
-	connect(NetworkController::instance, &NetworkController::receivedResponse, this, &StateController::registerSucceeded);
-	NetworkController::instance->sendRequest(request, 0);
-}
-
-void StateController::loginRequest(QSharedPointer<LoginRequest> request)
-{
-	connect(NetworkController::instance, &NetworkController::receivedResponse, this, &StateController::loginSucceeded);
-	NetworkController::instance->sendRequest(request, 0);
-}
-
-void StateController::encryptionSucceeded()
-{
-	connectState->encryptionSucceeded();
-	emit connectedToServer(this->socket.get());
-}
-
-void StateController::registerSucceeded()
-{
-	registerState->registerSucceeded();
-}
-
-void StateController::loginSucceeded()
-{
-	loginState->loginSucceeded();
-}
-
-void ConnectState::encryptionSucceeded()
-{
-	connectWidget->encryptionSucceeded();
 }
 
 void ConnectState::onEntry(QEvent* event)
@@ -70,17 +28,30 @@ void ConnectState::onEntry(QEvent* event)
 	this->connectWidget.reset(connectWidget);
 	connectWidget->setAttribute(Qt::WA_QuitOnClose, false);
 	connectWidget->show();
-	connect(connectWidget, &ConnectWidget::connectToHost, StateController::instance, &StateController::connectToHost);
+	connect(connectWidget, &ConnectWidget::connectToHost, this, &ConnectState::connectToHost);
+	connect(this, &ConnectState::connectedToServer, NetworkController::instance, &NetworkController::start);
+
 }
 
 void ConnectState::onExit(QEvent* event)
 {
 	connectWidget.reset(nullptr);
+	socket.reset(nullptr);
 }
 
-void RegisterState::registerSucceeded()
+void ConnectState::connectToHost(QString host, quint16 port)
 {
-	registerWidget->registerSucceeded();
+	auto socket = new QSslSocket;
+	this->socket.reset(socket);
+	socket->setPeerVerifyMode(QSslSocket::QueryPeer);
+	connect(socket, &QSslSocket::encrypted, this, &ConnectState::connectionSucceeded);
+	socket->connectToHostEncrypted(host, port);
+}
+
+void ConnectState::connectionSucceeded()
+{
+	connectWidget->connectionSucceeded();
+	emit connectedToServer(this->socket.take());
 }
 
 void RegisterState::onEntry(QEvent* event)
@@ -89,7 +60,7 @@ void RegisterState::onEntry(QEvent* event)
 	this->registerWidget.reset(registerWidget);
 	registerWidget->setAttribute(Qt::WA_QuitOnClose, false);
 	registerWidget->show();
-	connect(registerWidget, &RegisterWidget::registerRequest, StateController::instance, &StateController::registerRequest);
+	connect(registerWidget, &RegisterWidget::registerRequest, this, &RegisterState::registerRequest);
 }
 
 void RegisterState::onExit(QEvent* event)
@@ -97,9 +68,16 @@ void RegisterState::onExit(QEvent* event)
 	registerWidget.reset(nullptr);
 }
 
-void LoginState::loginSucceeded()
+void RegisterState::registerRequest(QSharedPointer<RegisterRequest> request)
 {
-	loginWidget->loginSucceeded();
+	connect(NetworkController::instance, &NetworkController::receivedResponse, this, &RegisterState::registerSucceeded);
+	NetworkController::instance->sendRequest(request, 0);
+}
+
+void RegisterState::registerSucceeded()
+{
+	registerWidget->registerSucceeded();
+	emit registerFinished();
 }
 
 void LoginState::onEntry(QEvent* event)
@@ -108,10 +86,22 @@ void LoginState::onEntry(QEvent* event)
 	this->loginWidget.reset(loginWidget);
 	loginWidget->setAttribute(Qt::WA_QuitOnClose, false);
 	loginWidget->show();
-	connect(loginWidget, &LoginWidget::loginRequest, StateController::instance, &StateController::loginRequest);
+	connect(loginWidget, &LoginWidget::loginRequest, this, &LoginState::loginRequest);
 }
 
 void LoginState::onExit(QEvent* event)
 {
 	loginWidget.reset(nullptr);
+}
+
+void LoginState::loginRequest(QSharedPointer<LoginRequest> request)
+{
+	connect(NetworkController::instance, &NetworkController::receivedResponse, this, &LoginState::loginSucceeded);
+	NetworkController::instance->sendRequest(request, 0);
+}
+
+void LoginState::loginSucceeded()
+{
+	loginWidget->loginSucceeded();
+	emit loginFinished();
 }

@@ -13,5 +13,5 @@ protected:
 
 protected:
 	QThread workerThread;
-	QSslSocket* socket = nullptr;
+	QScopedPointer<QSslSocket> socket;
 };

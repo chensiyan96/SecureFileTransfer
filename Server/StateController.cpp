@@ -18,10 +18,10 @@ StateController::StateController(QObject* parent)
 
 void MainState::onEntry(QEvent* event)
 {
-    auto sslServer = new SslServer;
-    this->sslServer.reset(sslServer);
-    connect(sslServer, &QTcpServer::newConnection, this, &MainState::newConnection);
-    sslServer->listen(QHostAddress::LocalHost, 8888);
+    auto server = new SslServer;
+    this->server.reset(server);
+    connect(server, &QTcpServer::newConnection, this, &MainState::newConnection);
+    server->listen(QHostAddress::LocalHost, 8888);
 }
 
 void MainState::onExit(QEvent* event)
@@ -30,7 +30,7 @@ void MainState::onExit(QEvent* event)
 
 void MainState::newConnection()
 {
-    while (auto socket = dynamic_cast<QSslSocket*>(sslServer->nextPendingConnection()))
+    while (auto socket = dynamic_cast<QSslSocket*>(server->nextPendingConnection()))
     {
         auto newNetworkController = new NetworkController;
         connect(this, &MainState::newSocket, newNetworkController, &NetworkController::start);

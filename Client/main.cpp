@@ -14,6 +14,5 @@ int main(int argc, char *argv[])
     w->show();
     StateController::instance = new StateController;
     NetworkController::instance = new NetworkController;
-    QObject::connect(StateController::instance, &StateController::connectedToServer, NetworkController::instance, &NetworkController::start);
     return a.exec();
 }
