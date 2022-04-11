@@ -58,8 +58,7 @@ protected:
 	void onExit(QEvent* event) override;
 
 private:
-	void registerRequest(QSharedPointer<RegisterRequest> request);
-	void registerSucceeded();
+	void checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response);
 
 private:
 	QScopedPointer<RegisterWidget> registerWidget;
@@ -80,8 +79,7 @@ protected:
 	void onExit(QEvent* event) override;
 
 private:
-	void loginRequest(QSharedPointer<LoginRequest> request);
-	void loginSucceeded();
+	void checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response);
 
 private:
 	QScopedPointer<LoginWidget> loginWidget;

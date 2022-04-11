@@ -18,6 +18,8 @@ private:
 	QSharedPointer<Response> handleRequest(QSharedPointer<Request> request);
 	RegisterResponse* handleRequest(const RegisterRequest* request);
 	LoginResponse* handleRequest(const LoginRequest* request);
+	LogoutResponse* handleRequest(const LogoutRequest* request);
+	DeleteUserResponse* handleRequest(const DeleteUserRequest* request);
 
 private:
 	QTimer timer;

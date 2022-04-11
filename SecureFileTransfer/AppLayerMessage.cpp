@@ -23,6 +23,10 @@ QSharedPointer<Request> Request::deserialize(QByteArray src)
 		return QSharedPointer<Request>(new RegisterRequest(id, data + 8));
 	case Type::LOGIN:
 		return QSharedPointer<Request>(new LoginRequest(id, data + 8));
+	case Type::LOGOUT:
+		return QSharedPointer<Request>(new LogoutRequest(id, data + 8));
+	case Type::DELETE_USER:
+		return QSharedPointer<Request>(new DeleteUserRequest(id, data + 8));
 	default:
 		return nullptr;
 	}
@@ -38,6 +42,10 @@ QSharedPointer<Response> Response::deserialize(QByteArray src)
 		return QSharedPointer<Response>(new RegisterResponse(id, data + 8));
 	case Type::LOGIN:
 		return QSharedPointer<Response>(new LoginResponse(id, data + 8));
+	case Type::LOGOUT:
+		return QSharedPointer<Response>(new LogoutResponse(id, data + 8));
+	case Type::DELETE_USER:
+		return QSharedPointer<Response>(new DeleteUserResponse(id, data + 8));
 	default:
 		return nullptr;
 	}
@@ -107,6 +115,54 @@ QByteArray LoginResponse::serialize() const
 }
 
 void LoginResponse::deserialize(const char* data)
+{
+	result = *reinterpret_cast<const Result*>(data);
+}
+
+QByteArray LogoutRequest::serialize() const
+{
+	QByteArray result(8, Qt::Uninitialized);
+	serializeHeader(result.data(), result.size());
+	return result;
+}
+
+void LogoutRequest::deserialize(const char* data)
+{
+}
+
+QByteArray LogoutResponse::serialize() const
+{
+	QByteArray result(9, Qt::Uninitialized);
+	auto data = serializeHeader(result.data(), result.size());
+	*reinterpret_cast<Result*>(data) = this->result;
+	return result;
+}
+
+void LogoutResponse::deserialize(const char* data)
+{
+	result = *reinterpret_cast<const Result*>(data);
+}
+
+QByteArray DeleteUserRequest::serialize() const
+{
+	QByteArray result(8, Qt::Uninitialized);
+	serializeHeader(result.data(), result.size());
+	return result;
+}
+
+void DeleteUserRequest::deserialize(const char* data)
+{
+}
+
+QByteArray DeleteUserResponse::serialize() const
+{
+	QByteArray result(9, Qt::Uninitialized);
+	auto data = serializeHeader(result.data(), result.size());
+	*reinterpret_cast<Result*>(data) = this->result;
+	return result;
+}
+
+void DeleteUserResponse::deserialize(const char* data)
 {
 	result = *reinterpret_cast<const Result*>(data);
 }

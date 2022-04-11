@@ -14,7 +14,7 @@ public:
 	void registerSucceeded();
 
 signals:
-	void registerRequest(QSharedPointer<RegisterRequest> request);
+	void sendRequest(QSharedPointer<Request> request, int priority);
 
 private:
 	void onPushButtonRegisterClicked();

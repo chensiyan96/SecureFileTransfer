@@ -2,6 +2,7 @@
 
 #include "StateController.h"
 #include "NetworkController.h"
+#include "ClientMainWindow.h"
 
 StateController* StateController::instance = nullptr;
 
@@ -39,6 +40,7 @@ void ConnectState::onEntry(QEvent* event)
 void ConnectState::onExit(QEvent* event)
 {
 	connectWidget.reset(nullptr);
+	NetworkController::instance->disconnect(this);
 }
 
 void ConnectState::connectionSucceeded()
@@ -53,24 +55,29 @@ void RegisterState::onEntry(QEvent* event)
 	this->registerWidget.reset(registerWidget);
 	registerWidget->setAttribute(Qt::WA_QuitOnClose, false);
 	registerWidget->show();
-	connect(registerWidget, &RegisterWidget::registerRequest, this, &RegisterState::registerRequest);
+	connect(NetworkController::instance, &NetworkController::receivedResponse, this, &RegisterState::checkResponse);
+	connect(registerWidget, &RegisterWidget::sendRequest,
+		[](QSharedPointer<Request> request, int priority) {
+			NetworkController::instance->sendRequest(request, priority);
+		});
 }
 
 void RegisterState::onExit(QEvent* event)
 {
 	registerWidget.reset(nullptr);
+	NetworkController::instance->disconnect(this);
 }
 
-void RegisterState::registerRequest(QSharedPointer<RegisterRequest> request)
+void RegisterState::checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response)
 {
-	connect(NetworkController::instance, &NetworkController::receivedResponse, this, &RegisterState::registerSucceeded);
-	NetworkController::instance->sendRequest(request, 0);
-}
-
-void RegisterState::registerSucceeded()
-{
-	registerWidget->registerSucceeded();
-	emit registerFinished();
+	if (auto registerResponse = dynamic_cast<RegisterResponse*>(response.get()))
+	{
+		if (registerResponse->result == RegisterResponse::Result::SUCCESS)
+		{
+			registerWidget->registerSucceeded();
+			emit registerFinished();
+		}
+	}
 }
 
 void LoginState::onEntry(QEvent* event)
@@ -79,30 +86,40 @@ void LoginState::onEntry(QEvent* event)
 	this->loginWidget.reset(loginWidget);
 	loginWidget->setAttribute(Qt::WA_QuitOnClose, false);
 	loginWidget->show();
-	connect(loginWidget, &LoginWidget::loginRequest, this, &LoginState::loginRequest);
+	connect(NetworkController::instance, &NetworkController::receivedResponse, this, &LoginState::checkResponse);
+	connect(loginWidget, &LoginWidget::sendRequest,
+		[](QSharedPointer<Request> request, int priority) {
+			NetworkController::instance->sendRequest(request, priority);
+		});
 }
 
 void LoginState::onExit(QEvent* event)
 {
 	loginWidget.reset(nullptr);
+	NetworkController::instance->disconnect(this);
 }
 
-void LoginState::loginRequest(QSharedPointer<LoginRequest> request)
+void LoginState::checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response)
 {
-	connect(NetworkController::instance, &NetworkController::receivedResponse, this, &LoginState::loginSucceeded);
-	NetworkController::instance->sendRequest(request, 0);
-}
-
-void LoginState::loginSucceeded()
-{
-	loginWidget->loginSucceeded();
-	emit loginFinished();
+	if (auto loginResponse = dynamic_cast<LoginResponse*>(response.get()))
+	{
+		if (loginResponse->result == LoginResponse::Result::SUCCESS)
+		{
+			loginWidget->loginSucceeded();
+			emit loginFinished();
+		}
+	}
 }
 
 void MainState::onEntry(QEvent* event)
 {
+	connect(ClientMainWindow::instance, &ClientMainWindow::sendRequest,
+		[](QSharedPointer<Request> request, int priority) {
+			NetworkController::instance->sendRequest(request, priority);
+		});
 }
 
 void MainState::onExit(QEvent* event)
 {
+	NetworkController::instance->disconnect(this);
 }

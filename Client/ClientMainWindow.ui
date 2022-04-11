@@ -1,28 +1,226 @@
-<UI version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>ClientMainWindowClass</class>
- <widget class="QMainWindow" name="ClientMainWindowClass" >
-  <property name="objectName" >
-   <string notr="true">ClientMainWindowClass</string>
-  </property>
-  <property name="geometry" >
+ <widget class="QMainWindow" name="ClientMainWindowClass">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>400</height>
+    <width>1024</width>
+    <height>576</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>ClientMainWindow</string>
-  </property>  <widget class="QMenuBar" name="menuBar" />
-  <widget class="QToolBar" name="mainToolBar" />
-  <widget class="QWidget" name="centralWidget" />
-  <widget class="QStatusBar" name="statusBar" />
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="2,0">
+    <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_localDir">
+        <property name="text">
+         <string>本地目录</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_remoteDir">
+        <property name="text">
+         <string>远程目录</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QTableView" name="tableView_local">
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustIgnored</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="gridStyle">
+         <enum>Qt::DotLine</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QTableView" name="tableView_remote">
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QTableView" name="tableView_transfer">
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1024</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_file">
+    <property name="title">
+     <string>文件</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="action_uploadFile"/>
+    <addaction name="action_downloadFile"/>
+    <addaction name="action_moveFile"/>
+    <addaction name="action_copyFile"/>
+    <addaction name="action_deleteFile"/>
+    <addaction name="separator"/>
+    <addaction name="action_quit"/>
+   </widget>
+   <widget class="QMenu" name="menu_user">
+    <property name="title">
+     <string>用户</string>
+    </property>
+    <addaction name="action_register"/>
+    <addaction name="action_login"/>
+    <addaction name="action_logout"/>
+    <addaction name="separator"/>
+    <addaction name="action_deleteUser"/>
+   </widget>
+   <widget class="QMenu" name="menu_edit">
+    <property name="title">
+     <string>编辑</string>
+    </property>
+    <addaction name="action_cut"/>
+    <addaction name="action_copy"/>
+    <addaction name="action_paste"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>连接</string>
+    </property>
+    <addaction name="action_connect"/>
+    <addaction name="action_disconnect"/>
+   </widget>
+   <addaction name="menu_file"/>
+   <addaction name="menu_edit"/>
+   <addaction name="menu_user"/>
+   <addaction name="menu"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="action_cut">
+   <property name="text">
+    <string>剪切</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="action_copy">
+   <property name="text">
+    <string>复制</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="action_paste">
+   <property name="text">
+    <string>粘贴</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="action_newLocal">
+   <property name="text">
+    <string>新建本地选项卡</string>
+   </property>
+  </action>
+  <action name="action_newRemote">
+   <property name="text">
+    <string>新建远程选项卡</string>
+   </property>
+  </action>
+  <action name="action_uploadFile">
+   <property name="text">
+    <string>上传</string>
+   </property>
+  </action>
+  <action name="action_downloadFile">
+   <property name="text">
+    <string>下载</string>
+   </property>
+  </action>
+  <action name="action_moveFile">
+   <property name="text">
+    <string>移动</string>
+   </property>
+  </action>
+  <action name="action_copyFile">
+   <property name="text">
+    <string>复制</string>
+   </property>
+  </action>
+  <action name="action_deleteFile">
+   <property name="text">
+    <string>删除</string>
+   </property>
+  </action>
+  <action name="action_connect">
+   <property name="text">
+    <string>建立</string>
+   </property>
+  </action>
+  <action name="action_disconnect">
+   <property name="text">
+    <string>断开</string>
+   </property>
+  </action>
+  <action name="action_register">
+   <property name="text">
+    <string>注册</string>
+   </property>
+  </action>
+  <action name="action_login">
+   <property name="text">
+    <string>登录</string>
+   </property>
+  </action>
+  <action name="action_logout">
+   <property name="text">
+    <string>注销</string>
+   </property>
+  </action>
+  <action name="action_deleteUser">
+   <property name="text">
+    <string>删除账号</string>
+   </property>
+  </action>
+  <action name="action_quit">
+   <property name="text">
+    <string>退出</string>
+   </property>
+  </action>
  </widget>
- <layoutDefault spacing="6" margin="11" />
- <pixmapfunction></pixmapfunction>
+ <layoutdefault spacing="6" margin="11"/>
  <resources>
-   <include location="ClientMainWindow.qrc"/>
+  <include location="ClientMainWindow.qrc"/>
  </resources>
  <connections/>
-</UI>
+</ui>

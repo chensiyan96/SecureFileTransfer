@@ -20,5 +20,5 @@ void LoginWidget::onPushButtonLoginClicked()
 	auto requset = NetworkController::instance->newRequest<LoginRequest>();
 	requset->username = ui.lineEdit_username_2->text();
 	requset->password = QCryptographicHash::hash(ui.lineEdit_password->text().toUtf8(), QCryptographicHash::Algorithm::Sha256);
-	emit loginRequest(requset);
+	emit sendRequest(requset, 0);
 }

@@ -14,7 +14,7 @@ public:
 	void loginSucceeded();
 
 signals:
-	void loginRequest(QSharedPointer<LoginRequest> request);
+	void sendRequest(QSharedPointer<Request> request, int priority);
 
 private:
 	void onPushButtonLoginClicked();

@@ -8,10 +8,10 @@ struct SECUREFILETRANSFER_EXPORT AppLayerMessage
 	enum class Type : quint8
 	{
 		// 账号管理
-		REGISTER, LOGIN, LOGOUT, DESTROY_ACCOUNT, CHANGE_PASSWORD, 
+		REGISTER, LOGIN, LOGOUT, DELETE_USER,
 
-		// 文件元数据管理		
-		LIST_FILES, CHANGE_DIRECTORY, MAKE_DIRECTORY,
+		// 文件元数据管理
+		LIST_FILES, MAKE_DIRECTORY,
 		MOVE_FILE, COPY_FILE, UPLOAD_FILE, DOWNLOAD_FILE, REMOVE_FILE,
 
 		// 文件内容管理
@@ -110,5 +110,67 @@ struct SECUREFILETRANSFER_EXPORT LoginResponse : public Response
 	enum class Result : quint8
 	{
 		SUCCESS, INVALID_ARGUMENT, WRONG_USERNAME_OR_PASSWORD
+	} result = Result::SUCCESS;
+};
+
+// 用户注销（登出）请求
+struct SECUREFILETRANSFER_EXPORT LogoutRequest : public Request
+{
+	LogoutRequest(quint32 id) : Request(id, Type::LOGOUT) {}
+	LogoutRequest(quint32 id, const char* data)
+		: Request(id, Type::LOGOUT) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+};
+
+// 用户注销（登出）响应
+struct SECUREFILETRANSFER_EXPORT LogoutResponse : public Response
+{
+	LogoutResponse(quint32 id) : Response(id, Type::LOGOUT) {}
+	LogoutResponse(quint32 id, const char* data)
+		: Response(id, Type::LOGOUT) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
+	{
+		SUCCESS, DID_NOT_LOGIN
+	} result = Result::SUCCESS;
+};
+
+// 删除用户请求
+struct SECUREFILETRANSFER_EXPORT DeleteUserRequest : public Request
+{
+	DeleteUserRequest(quint32 id) : Request(id, Type::DELETE_USER) {}
+	DeleteUserRequest(quint32 id, const char* data)
+		: Request(id, Type::DELETE_USER) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+};
+
+// 删除用户响应
+struct SECUREFILETRANSFER_EXPORT DeleteUserResponse : public Response
+{
+	DeleteUserResponse(quint32 id) : Response(id, Type::DELETE_USER) {}
+	DeleteUserResponse(quint32 id, const char* data)
+		: Response(id, Type::DELETE_USER) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
+	{
+		SUCCESS, DID_NOT_LOGIN
 	} result = Result::SUCCESS;
 };

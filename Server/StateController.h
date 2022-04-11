@@ -24,6 +24,7 @@ class MainState : public QState
 
 public:
 	explicit MainState(QState* parent = nullptr) : QState(parent) {}
+	~MainState();
 
 signals:
 	void newSocket();

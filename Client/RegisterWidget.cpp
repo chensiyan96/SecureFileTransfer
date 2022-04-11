@@ -27,5 +27,5 @@ void RegisterWidget::onPushButtonRegisterClicked()
 	auto requset = NetworkController::instance->newRequest<RegisterRequest>();;
 	requset->username = ui.lineEdit_username->text();
 	requset->password = QCryptographicHash::hash(password1.toUtf8(), QCryptographicHash::Algorithm::Sha256);
-	emit registerRequest(requset);
+	emit sendRequest(requset, 0);
 }

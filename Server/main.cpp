@@ -12,5 +12,8 @@ int main(int argc, char *argv[])
     QScopedPointer<ServerMainWindow> w(new ServerMainWindow);
     w->show();
     StateController::instance = new StateController;
-    return a.exec();
+
+    auto ret = a.exec();
+    delete StateController::instance;
+    return ret;
 }

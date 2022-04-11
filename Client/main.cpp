@@ -10,12 +10,20 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QSharedPointer<Response>>("QSharedPointer<Response>");
 
     QApplication a(argc, argv);
-    QScopedPointer<ClientMainWindow> w(new ClientMainWindow);
-    w->show();
     StateController::instance = new StateController;
     NetworkController::instance = new NetworkController;
+    ClientMainWindow::instance = new ClientMainWindow;
+    ClientMainWindow::instance->show();
+
     QThread networkThread;
     NetworkController::instance->moveToThread(&networkThread);
     networkThread.start();
-    return a.exec();
+
+    auto ret = a.exec();
+    QObject::connect(&networkThread, &QThread::finished, NetworkController::instance, &QObject::deleteLater);
+    networkThread.quit();
+    delete StateController::instance;
+    delete ClientMainWindow::instance;
+    networkThread.wait();
+    return ret;
 }

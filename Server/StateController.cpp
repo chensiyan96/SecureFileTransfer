@@ -16,6 +16,15 @@ StateController::StateController(QObject* parent)
     stateMachine.start();
 }
 
+MainState::~MainState()
+{
+    if (serverThread.isRunning())
+    {
+        serverThread.quit();
+        serverThread.wait();
+    }
+}
+
 void MainState::onEntry(QEvent* event)
 {
     auto server = new SslServer;
@@ -28,6 +37,9 @@ void MainState::onEntry(QEvent* event)
 
 void MainState::onExit(QEvent* event)
 {
+    serverThread.quit();
+    serverThread.wait();
+    server.reset(nullptr);
 }
 
 void MainState::newConnection()
