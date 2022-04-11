@@ -1,11 +1,16 @@
 #include "stdafx.h"
 
 #include "ServerMainWindow.h"
+#include "StateController.h"
 
 int main(int argc, char *argv[])
 {
+    qRegisterMetaType<QSharedPointer<Request>>("QSharedPointer<Request>");
+    qRegisterMetaType<QSharedPointer<Response>>("QSharedPointer<Response>");
+
     QApplication a(argc, argv);
-    ServerMainWindow w;
-    w.show();
+    QScopedPointer<ServerMainWindow> w(new ServerMainWindow);
+    w->show();
+    StateController::instance = new StateController;
     return a.exec();
 }

@@ -1,11 +1,13 @@
 #include "stdafx.h"
 
 #include "SslServer.h"
-#include "AppLayerMessage.h"
 
-SslServer::SslServer(QObject *parent)
-	: QTcpServer(parent)
+SslServer::SslServer(QObject* parent)
+    : QTcpServer(parent)
 {
+    // 配置证书，请看此博客
+    // https://www.jianshu.com/p/a9497de4cbff
+
     QFile certFile("D:/x509/server.crt");
     certFile.open(QIODevice::ReadOnly);
     certificate = QSslCertificate(&certFile, QSsl::Pem);
@@ -26,23 +28,10 @@ void SslServer::incomingConnection(qintptr socketDescriptor)
     socket->setPeerVerifyMode(QSslSocket::VerifyNone);
     if (socket->setSocketDescriptor(socketDescriptor)) {
         addPendingConnection(socket);
-        connect(socket, &QSslSocket::encrypted, this, &SslServer::ready);
-        socket->startServerEncryption();
-        socket->waitForReadyRead(); 
-        Request::deserialize(socket->readAll());
-        socket->write(LoginResponse(1).serialize());
+        //connect(socket, &QSslSocket::encrypted, this, &SslServer::ready);
+        socket->startServerEncryption();      
     }
     else {
         delete socket;
     }
-}
-
-void SslServer::ready()
-{
-    //QMessageBox::information(nullptr, u8"消息", u8"加密完成", QMessageBox::Ok);
-}
-
-void SslServer::errors(const QList<QSslError>& err)
-{
-    //QMessageBox::critical(nullptr, u8"错误", u8"加密失败", QMessageBox::Ok);
 }

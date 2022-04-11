@@ -55,10 +55,28 @@
     <ClCompile Include="ServerMainWindow.cpp">
       <Filter>Source Files\view</Filter>
     </ClCompile>
+    <ClCompile Include="NetworkController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StateController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SslServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ServerMainWindow.h">
       <Filter>Header Files\view</Filter>
+    </QtMoc>
+    <QtMoc Include="NetworkController.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="StateController.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SslServer.h">
+      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QSharedPointer<Response>>("QSharedPointer<Response>");
 
     QApplication a(argc, argv);
-    auto w = std::make_unique<ClientMainWindow>(new ClientMainWindow);
+    QScopedPointer<ClientMainWindow> w(new ClientMainWindow);
     w->show();
     StateController::instance = new StateController;
     NetworkController::instance = new NetworkController;

@@ -8,8 +8,4 @@ class SECUREFILETRANSFER_EXPORT SecureFileTransfer : public QObject
 
 public:
     void testServer();
-    void testClient();
-
-private:
-    void newConnectionSlot();
 };
