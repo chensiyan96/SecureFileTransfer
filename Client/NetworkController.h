@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../SecureFileTransfer/NetworkControllerBase.h"
+#include "../SecureFileTransfer/AppLayerMessage.h"
 
-class NetworkController : public NetworkControllerBase
+class NetworkController : public QObject
 {
 	Q_OBJECT
 
@@ -18,13 +18,22 @@ public:
 		return QSharedPointer<Request>(new Request(nextRequestId++));
 	}
 
-	void start(QSslSocket* socket); // slot
+	void connectToHost(QString host, quint16 port);
+
+	void start(); // slot
 	void sendRequest(QSharedPointer<Request> request, int priority);
 
 signals:
+	void connectionSucceeded();
 	void receivedResponse(QSharedPointer<Request> request, QSharedPointer<Response> response);
 
 private:
+	void writeRequest();
+	void readResponse();
+
+private:
+	QTimer timer;
+	QScopedPointer<QSslSocket> socket;
 	QVector<QQueue<QSharedPointer<Request>>> sendQueue;
 	QMutex sendQueueMutex;
 	QMap<quint32, QSharedPointer<Request>> matchMap;

@@ -14,5 +14,8 @@ int main(int argc, char *argv[])
     w->show();
     StateController::instance = new StateController;
     NetworkController::instance = new NetworkController;
+    QThread networkThread;
+    NetworkController::instance->moveToThread(&networkThread);
+    networkThread.start();
     return a.exec();
 }

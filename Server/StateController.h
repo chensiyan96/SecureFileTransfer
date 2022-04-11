@@ -15,18 +15,8 @@ public:
 
 private:
 	QStateMachine stateMachine;
-	class MainState* mainState;
+	class MainState* mainState = nullptr;
 };
-
-inline bool operator==(const QScopedPointer<NetworkController>& a, const QScopedPointer<NetworkController>& b)
-{
-	return reinterpret_cast<size_t>(a.get()) == reinterpret_cast<size_t>(b.get());
-}
-
-inline uint qHash(const QScopedPointer<NetworkController>& a)
-{
-	return qHash(reinterpret_cast<size_t>(a.get()));
-}
 
 class MainState : public QState
 {
@@ -36,7 +26,7 @@ public:
 	explicit MainState(QState* parent = nullptr) : QState(parent) {}
 
 signals:
-	void newSocket(QSslSocket* socket); // slot
+	void newSocket();
 
 protected:
 	void onEntry(QEvent* event) override;
@@ -47,5 +37,5 @@ private:
 
 private:
 	QScopedPointer<SslServer> server;
-	QSet<QScopedPointer<NetworkController>> allNetworkControllers;
+	QThread serverThread;
 };

@@ -19,6 +19,7 @@ private:
 	class ConnectState* connectState = nullptr;
 	class RegisterState* registerState = nullptr;
 	class LoginState* loginState = nullptr;
+	class MainState* mainState = nullptr;
 };
 
 class ConnectState : public QState
@@ -29,19 +30,17 @@ public:
 	explicit ConnectState(QState* parent = nullptr) : QState(parent) {}
 
 signals:
-	void connectedToServer(QSslSocket* socket);
+	void connectedToServer();
 
 protected:
 	void onEntry(QEvent* event) override;
 	void onExit(QEvent* event) override;
 	
 private:
-	void connectToHost(QString host, quint16 port);
 	void connectionSucceeded();
 
 private:
 	QScopedPointer<ConnectWidget> connectWidget;
-	QScopedPointer<QSslSocket> socket;
 };
 
 class RegisterState : public QState
@@ -86,4 +85,19 @@ private:
 
 private:
 	QScopedPointer<LoginWidget> loginWidget;
+};
+
+class MainState : public QState
+{
+	Q_OBJECT
+
+public:
+	explicit MainState(QState* parent = nullptr) : QState(parent) {}
+
+signals:
+	void newSocket(QSslSocket* socket);
+
+protected:
+	void onEntry(QEvent* event) override;
+	void onExit(QEvent* event) override;
 };

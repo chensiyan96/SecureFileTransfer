@@ -22,14 +22,15 @@ SslServer::SslServer(QObject* parent)
 
 void SslServer::incomingConnection(qintptr socketDescriptor)
 {
-    auto socket = new QSslSocket(this);
+    auto socket = new QSslSocket;
     socket->setLocalCertificate(certificate);
     socket->setPrivateKey(privateKey);
     socket->setPeerVerifyMode(QSslSocket::VerifyNone);
     if (socket->setSocketDescriptor(socketDescriptor)) {
+        auto newNetworkController = new NetworkController(socket);
+        connect(this, &SslServer::newConnection, newNetworkController, &NetworkController::start);
         addPendingConnection(socket);
-        //connect(socket, &QSslSocket::encrypted, this, &SslServer::ready);
-        socket->startServerEncryption();      
+        allNetworkControllers.emplace(newNetworkController);
     }
     else {
         delete socket;

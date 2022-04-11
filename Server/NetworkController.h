@@ -1,21 +1,26 @@
 #pragma once
 
-#include "../SecureFileTransfer/NetworkControllerBase.h"
+#include "../SecureFileTransfer/AppLayerMessage.h"
 
-class NetworkController : public NetworkControllerBase
+class NetworkController : public QObject
 {
 	Q_OBJECT
 
 public:
-	explicit NetworkController(QObject* parent = nullptr);
+	explicit NetworkController(QSslSocket* socket, QObject* parent = nullptr);
 
-	void start(QSslSocket* socket); // slot
+	void start(); // slot
 
 private:
+	void readRequest();
+	void writeResponse();
+
 	QSharedPointer<Response> handleRequest(QSharedPointer<Request> request);
 	RegisterResponse* handleRequest(const RegisterRequest* request);
 	LoginResponse* handleRequest(const LoginRequest* request);
 
 private:
+	QTimer timer;
+	QScopedPointer<QSslSocket> socket;
 	QByteArray receiveBuffer;
 };

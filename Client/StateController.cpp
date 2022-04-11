@@ -11,12 +11,15 @@ StateController::StateController(QObject* parent)
 	connectState = new ConnectState(&stateMachine);
 	registerState = new RegisterState(&stateMachine);
 	loginState = new LoginState(&stateMachine);
+	mainState = new MainState(&stateMachine);
 
 	stateMachine.addState(connectState);
 	stateMachine.addState(registerState);
 	stateMachine.addState(loginState);
+	stateMachine.addState(mainState);
 
 	connectState->addTransition(connectState, &ConnectState::connectedToServer, loginState);
+	loginState->addTransition(loginState, &LoginState::loginFinished, mainState);
 
 	stateMachine.setInitialState(connectState);
 	stateMachine.start();
@@ -28,30 +31,20 @@ void ConnectState::onEntry(QEvent* event)
 	this->connectWidget.reset(connectWidget);
 	connectWidget->setAttribute(Qt::WA_QuitOnClose, false);
 	connectWidget->show();
-	connect(connectWidget, &ConnectWidget::connectToHost, this, &ConnectState::connectToHost);
+	connect(connectWidget, &ConnectWidget::connectToHost, NetworkController::instance, &NetworkController::connectToHost);
+	connect(NetworkController::instance, &NetworkController::connectionSucceeded, this, &ConnectState::connectionSucceeded);
 	connect(this, &ConnectState::connectedToServer, NetworkController::instance, &NetworkController::start);
-
 }
 
 void ConnectState::onExit(QEvent* event)
 {
 	connectWidget.reset(nullptr);
-	socket.reset(nullptr);
-}
-
-void ConnectState::connectToHost(QString host, quint16 port)
-{
-	auto socket = new QSslSocket;
-	this->socket.reset(socket);
-	socket->setPeerVerifyMode(QSslSocket::QueryPeer);
-	connect(socket, &QSslSocket::encrypted, this, &ConnectState::connectionSucceeded);
-	socket->connectToHostEncrypted(host, port);
 }
 
 void ConnectState::connectionSucceeded()
 {
 	connectWidget->connectionSucceeded();
-	emit connectedToServer(this->socket.take());
+	emit connectedToServer();
 }
 
 void RegisterState::onEntry(QEvent* event)
@@ -104,4 +97,12 @@ void LoginState::loginSucceeded()
 {
 	loginWidget->loginSucceeded();
 	emit loginFinished();
+}
+
+void MainState::onEntry(QEvent* event)
+{
+}
+
+void MainState::onExit(QEvent* event)
+{
 }

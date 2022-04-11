@@ -22,6 +22,8 @@ void MainState::onEntry(QEvent* event)
     this->server.reset(server);
     connect(server, &QTcpServer::newConnection, this, &MainState::newConnection);
     server->listen(QHostAddress::LocalHost, 8888);
+    server->moveToThread(&serverThread);
+    serverThread.start();
 }
 
 void MainState::onExit(QEvent* event)
@@ -32,9 +34,5 @@ void MainState::newConnection()
 {
     while (auto socket = dynamic_cast<QSslSocket*>(server->nextPendingConnection()))
     {
-        auto newNetworkController = new NetworkController;
-        connect(this, &MainState::newSocket, newNetworkController, &NetworkController::start);
-        emit newSocket(socket);
-        //allNetworkControllers.insert(QScopedPointer<NetworkController>(newNetworkController));
     }
 }
