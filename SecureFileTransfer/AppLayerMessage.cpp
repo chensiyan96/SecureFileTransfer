@@ -13,31 +13,31 @@ char* AppLayerMessage::serializeHeader(char* data, int size) const
 	return data;
 }
 
-Request* Request::deserialize(QByteArray src)
+QSharedPointer<Request> Request::deserialize(QByteArray src)
 {
 	auto data = src.constData();
 	auto id = *reinterpret_cast<const quint32*>(data);
 	switch (*reinterpret_cast<const Type*>(data + 7))
 	{
 	case Type::REGISTER:
-		return new RegisterRequest(id, data + 8);
+		return QSharedPointer<Request>(new RegisterRequest(id, data + 8));
 	case Type::LOGIN:
-		return new LoginRequest(id, data + 8);
+		return QSharedPointer<Request>(new LoginRequest(id, data + 8));
 	default:
 		return nullptr;
 	}
 }
 
-Response* Response::deserialize(QByteArray src)
+QSharedPointer<Response> Response::deserialize(QByteArray src)
 {
 	auto data = src.constData();
 	auto id = *reinterpret_cast<const quint32*>(data);
 	switch (*reinterpret_cast<const Type*>(data + 7))
 	{
 	case Type::REGISTER: 
-		return new RegisterResponse(id, data + 8);
+		return QSharedPointer<Response>(new RegisterResponse(id, data + 8));
 	case Type::LOGIN:
-		return new LoginResponse(id, data + 8);
+		return QSharedPointer<Response>(new LoginResponse(id, data + 8));
 	default:
 		return nullptr;
 	}

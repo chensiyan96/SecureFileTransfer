@@ -42,12 +42,18 @@
     <QtMoc Include="SslServer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="NetworkControllerBase.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SslServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AppLayerMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkControllerBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

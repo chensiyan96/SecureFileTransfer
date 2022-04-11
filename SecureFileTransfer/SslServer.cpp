@@ -28,8 +28,9 @@ void SslServer::incomingConnection(qintptr socketDescriptor)
         addPendingConnection(socket);
         connect(socket, &QSslSocket::encrypted, this, &SslServer::ready);
         socket->startServerEncryption();
-        socket->waitForReadyRead();
+        socket->waitForReadyRead(); 
         Request::deserialize(socket->readAll());
+        socket->write(LoginResponse(1).serialize());
     }
     else {
         delete socket;

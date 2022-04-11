@@ -1,6 +1,8 @@
 #pragma once
 
-class NetworkController : public QObject
+#include "../SecureFileTransfer/NetworkControllerBase.h"
+
+class NetworkController : public NetworkControllerBase
 {
 	Q_OBJECT
 
@@ -11,10 +13,21 @@ public:
 	explicit NetworkController(QObject* parent = nullptr);
 
 	template<class Request>
-	Request* newRequest() { return new Request(nextRequestId++); }
+	QSharedPointer<Request> newRequest()
+	{
+		return QSharedPointer<Request>(new Request(nextRequestId++));
+	}
+
+	void start(QSslSocket* socket); // slot
+	void sendRequest(QSharedPointer<Request> request, int priority);
+
+signals:
+	void receivedResponse(QSharedPointer<Request> request, QSharedPointer<Response> response);
 
 private:
-	QThread workerThread;
-	QSslSocket* socket = nullptr;
+	QVector<QQueue<QSharedPointer<Request>>> sendQueue;
+	QMutex sendQueueMutex;
+	QMap<quint32, QSharedPointer<Request>> matchMap;
+	QByteArray receiveBuffer;
 	quint32 nextRequestId = 1;
 };

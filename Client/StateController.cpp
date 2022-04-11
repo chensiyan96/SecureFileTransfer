@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "StateController.h"
+#include "NetworkController.h"
 
 StateController* StateController::instance = nullptr;
 
@@ -30,20 +31,32 @@ void StateController::connectToHost(QString host, quint16 port)
 	socket->connectToHostEncrypted(host, port);
 }
 
-void StateController::registerRequest(RegisterRequest* request)
+void StateController::registerRequest(QSharedPointer<RegisterRequest> request)
 {
-	socket->write(request->serialize());
+	connect(NetworkController::instance, &NetworkController::receivedResponse, this, &StateController::registerSucceeded);
+	NetworkController::instance->sendRequest(request, 0);
 }
 
-void StateController::loginRequest(LoginRequest* request)
+void StateController::loginRequest(QSharedPointer<LoginRequest> request)
 {
-	socket->write(request->serialize());
+	connect(NetworkController::instance, &NetworkController::receivedResponse, this, &StateController::loginSucceeded);
+	NetworkController::instance->sendRequest(request, 0);
 }
 
 void StateController::encryptionSucceeded()
 {
 	connectState->encryptionSucceeded();
 	emit connectedToServer(this->socket.get());
+}
+
+void StateController::registerSucceeded()
+{
+	registerState->registerSucceeded();
+}
+
+void StateController::loginSucceeded()
+{
+	loginState->loginSucceeded();
 }
 
 void ConnectState::encryptionSucceeded()
@@ -62,7 +75,7 @@ void ConnectState::onEntry(QEvent* event)
 
 void ConnectState::onExit(QEvent* event)
 {
-	connectWidget = nullptr;
+	connectWidget.reset(nullptr);
 }
 
 void RegisterState::registerSucceeded()
@@ -81,7 +94,7 @@ void RegisterState::onEntry(QEvent* event)
 
 void RegisterState::onExit(QEvent* event)
 {
-	registerWidget = nullptr;
+	registerWidget.reset(nullptr);
 }
 
 void LoginState::loginSucceeded()
@@ -100,5 +113,5 @@ void LoginState::onEntry(QEvent* event)
 
 void LoginState::onExit(QEvent* event)
 {
-	loginWidget = nullptr;
+	loginWidget.reset(nullptr);
 }

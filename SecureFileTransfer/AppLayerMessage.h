@@ -35,19 +35,23 @@ struct SECUREFILETRANSFER_EXPORT AppLayerMessage
 struct SECUREFILETRANSFER_EXPORT Request : public AppLayerMessage
 {
 	// 从字节数组中反序列化构造对象
-	static Request* deserialize(QByteArray src);
+	static QSharedPointer<Request> deserialize(QByteArray src);
 
 	Request(quint32 id, Type type) : AppLayerMessage(id, type) {}
 };
+
+Q_DECLARE_METATYPE(QSharedPointer<Request>)
 
 // 响应报文，通常是服务器向客户端发送
 struct SECUREFILETRANSFER_EXPORT Response : public AppLayerMessage
 {
 	// 从字节数组中反序列化构造对象
-	static Response* deserialize(QByteArray src);
+	static QSharedPointer<Response> deserialize(QByteArray src);
 
 	Response(quint32 id, Type type) : AppLayerMessage(id, type) {}
 };
+
+Q_DECLARE_METATYPE(QSharedPointer<Response>)
 
 // 用户注册请求
 struct SECUREFILETRANSFER_EXPORT RegisterRequest : public Request

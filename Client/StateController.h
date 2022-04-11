@@ -15,18 +15,20 @@ public:
 	explicit StateController(QObject* parent = nullptr);
 
 	void connectToHost(QString host, quint16 port);
-	void registerRequest(RegisterRequest* request);
-	void loginRequest(LoginRequest* request);
+	void registerRequest(QSharedPointer<RegisterRequest> request);
+	void loginRequest(QSharedPointer<LoginRequest> request);
 
 signals:
 	void connectedToServer(QSslSocket* socket);
 
 private:
 	void encryptionSucceeded();
+	void registerSucceeded();
+	void loginSucceeded();
 
 private:
 	QStateMachine stateMachine;
-	std::unique_ptr<QSslSocket> socket = nullptr;
+	QScopedPointer<QSslSocket> socket;
 	class ConnectState* connectState = nullptr;
 	class RegisterState* registerState = nullptr;
 	class LoginState* loginState = nullptr;
@@ -47,7 +49,7 @@ protected:
 	void onExit(QEvent* event) override;
 	
 private:
-	std::unique_ptr<ConnectWidget> connectWidget = nullptr;
+	QScopedPointer<ConnectWidget> connectWidget;
 };
 
 class RegisterState : public QState
@@ -64,7 +66,7 @@ protected:
 	void onExit(QEvent* event) override;
 
 private:
-	std::unique_ptr<RegisterWidget> registerWidget = nullptr;
+	QScopedPointer<RegisterWidget> registerWidget;
 };
 
 class LoginState : public QState
@@ -81,5 +83,5 @@ protected:
 	void onExit(QEvent* event) override;
 
 private:
-	std::unique_ptr<LoginWidget> loginWidget = nullptr;
+	QScopedPointer<LoginWidget> loginWidget;
 };
