@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "NetworkController.h"
+#include "RequestController.h"
 
 NetworkController::NetworkController(QSslSocket* socket, QObject* parent)
 	: QObject(parent), socket(socket)
@@ -14,7 +15,9 @@ void NetworkController::start()
 	socket->waitForEncrypted();
 	connect(&timer, &QTimer::timeout, this, &NetworkController::writeResponse);
 	connect(&timer, &QTimer::timeout, this, &NetworkController::readRequest);
+	connect(socket.get(), &QSslSocket::encryptedBytesWritten, this, &NetworkController::writeResponse);
 	connect(socket.get(), &QSslSocket::readyRead, this, &NetworkController::readRequest);
+	connect(RequestController::instance, &RequestController::sendResponse, this, &NetworkController::sendResponse);
 }
 
 void NetworkController::readRequest()
@@ -35,11 +38,7 @@ void NetworkController::readRequest()
 			qDebug() << socket->bytesAvailable();
 			receiveBuffer.append(socket->read(size - 8));
 			auto request = Request::deserialize(receiveBuffer);
-			auto response = handleRequest(request);
-			auto bytes = response->serialize();
-			auto n = socket->write(bytes);
-			assert(n == bytes.size());
-			socket->flush();
+			RequestController::instance->handleRequestAsync(request);
 			receiveBuffer.clear();
 		}
 	}
@@ -47,91 +46,35 @@ void NetworkController::readRequest()
 
 void NetworkController::writeResponse()
 {
-}
-
-QSharedPointer<Response> NetworkController::handleRequest(QSharedPointer<Request> request)
-{
-	switch (request->type)
+	if (sendBuffer.isEmpty())
 	{
-	case AppLayerMessage::Type::REGISTER:
-		return QSharedPointer<Response>(handleRequest(dynamic_cast<RegisterRequest*>(request.get())));
-	case AppLayerMessage::Type::LOGIN:
-		return QSharedPointer<Response>(handleRequest(dynamic_cast<LoginRequest*>(request.get())));
-	case AppLayerMessage::Type::LOGOUT:
-		return QSharedPointer<Response>(handleRequest(dynamic_cast<LogoutRequest*>(request.get())));
-	case AppLayerMessage::Type::DELETE_USER:
-		return QSharedPointer<Response>(handleRequest(dynamic_cast<DeleteUserRequest*>(request.get())));
-	default:
-		return nullptr;
+		if (!sendQueue.isEmpty())
+		{
+			auto bytes = sendQueue.front()->serialize();
+			sendOffset = quint32(socket->write(bytes));
+			sendQueue.pop_front();
+			if (sendOffset < quint32(bytes.size()))
+			{
+				sendBuffer = bytes;
+				return; // ·¢ËÍ»º³åÇøÂú£¬ÔÝÍ£·¢ËÍ
+			}
+		}
+	}
+	else
+	{
+		auto size = quint32(sendBuffer.size());
+		sendOffset += quint32(socket->write(sendBuffer.constData() + sendOffset, size - sendOffset));
+		if (sendOffset >= size)
+		{
+			assert(sendOffset == size);
+			sendBuffer.clear();
+			sendOffset = 0;
+		}
 	}
 }
 
-RegisterResponse* NetworkController::handleRequest(const RegisterRequest* request)
+void NetworkController::sendResponse(QSharedPointer<Response> response)
 {
-	return new RegisterResponse(request->id);
-}
-
-LoginResponse* NetworkController::handleRequest(const LoginRequest* request)
-{
-	return new LoginResponse(request->id);
-}
-
-LogoutResponse* NetworkController::handleRequest(const LogoutRequest* request)
-{
-	return new LogoutResponse(request->id);
-}
-
-DeleteUserResponse* NetworkController::handleRequest(const DeleteUserRequest* request)
-{
-	return new DeleteUserResponse(request->id);
-}
-
-ListFilesResponse* NetworkController::handleRequest(const ListFilesRequest* request)
-{
-	return new ListFilesResponse(request->id);
-}
-
-MakeDirectoryResponse* NetworkController::handleRequest(const MakeDirectoryRequest* request)
-{
-	return new MakeDirectoryResponse(request->id);
-}
-
-MoveFileResponse* NetworkController::handleRequest(const MoveFileRequest* request)
-{
-	return new MoveFileResponse(request->id);
-}
-
-CopyFileResponse* NetworkController::handleRequest(const CopyFileRequest* request)
-{
-	return new CopyFileResponse(request->id);
-}
-
-UploadFileResponse* NetworkController::handleRequest(const UploadFileRequest* request)
-{
-	return new UploadFileResponse(request->id);
-}
-
-DownloadFileResponse* NetworkController::handleRequest(const DownloadFileRequest* request)
-{
-	return new DownloadFileResponse(request->id);
-}
-
-RemoveFileResponse* NetworkController::handleRequest(const RemoveFileRequest* request)
-{
-	return new RemoveFileResponse(request->id);
-}
-
-UploadDataResponse* NetworkController::handleRequest(const UploadDataRequest* request)
-{
-	return new UploadDataResponse(request->id);
-}
-
-DownloadDataResponse* NetworkController::handleRequest(const DownloadDataRequest* request)
-{
-	return new DownloadDataResponse(request->id);
-}
-
-CancelTransferResponse* NetworkController::handleRequest(const CancelTransferRequest* request)
-{
-	return new CancelTransferResponse(request->id);
+	sendQueue.push_back(response);
+	writeResponse();
 }

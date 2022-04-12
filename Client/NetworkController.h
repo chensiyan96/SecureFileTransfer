@@ -24,6 +24,7 @@ public:
 	void sendRequest(QSharedPointer<Request> request, int priority);
 
 signals:
+	void requestAdded();
 	void connectionSucceeded();
 	void receivedResponse(QSharedPointer<Request> request, QSharedPointer<Response> response);
 
@@ -38,5 +39,7 @@ private:
 	QMutex sendQueueMutex;
 	QMap<quint32, QSharedPointer<Request>> matchMap;
 	QByteArray receiveBuffer;
+	QByteArray sendBuffer;
+	quint32 sendOffset = 0;
 	quint32 nextRequestId = 1;
 };

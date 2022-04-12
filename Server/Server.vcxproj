@@ -99,6 +99,7 @@
     <QtUic Include="ServerMainWindow.ui" />
     <QtMoc Include="ServerMainWindow.h" />
     <ClCompile Include="NetworkController.cpp" />
+    <ClCompile Include="RequestController.cpp" />
     <ClCompile Include="ServerMainWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <None Include="Server.ico" />
@@ -106,6 +107,7 @@
     <QtMoc Include="NetworkController.h" />
     <QtMoc Include="StateController.h" />
     <QtMoc Include="SslServer.h" />
+    <QtMoc Include="RequestController.h" />
     <ClInclude Include="stdafx.h" />
     <ClCompile Include="SslServer.cpp" />
     <ClCompile Include="StateController.cpp" />

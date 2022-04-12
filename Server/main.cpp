@@ -2,6 +2,7 @@
 
 #include "ServerMainWindow.h"
 #include "StateController.h"
+#include "RequestController.h"
 
 int main(int argc, char *argv[])
 {
@@ -12,6 +13,7 @@ int main(int argc, char *argv[])
     QScopedPointer<ServerMainWindow> w(new ServerMainWindow);
     w->show();
     StateController::instance = new StateController;
+    RequestController::instance = new RequestController;
 
     auto ret = a.exec();
     delete StateController::instance;
