@@ -19,8 +19,6 @@ void NetworkController::start()
 
 void NetworkController::readRequest()
 {
-	//socket->waitForReadyRead();
-	//qDebug() << socket->bytesAvailable();
 	if (receiveBuffer.isEmpty())
 	{
 		if (socket->bytesAvailable() >= 8)
@@ -86,4 +84,54 @@ LogoutResponse* NetworkController::handleRequest(const LogoutRequest* request)
 DeleteUserResponse* NetworkController::handleRequest(const DeleteUserRequest* request)
 {
 	return new DeleteUserResponse(request->id);
+}
+
+ListFilesResponse* NetworkController::handleRequest(const ListFilesRequest* request)
+{
+	return new ListFilesResponse(request->id);
+}
+
+MakeDirectoryResponse* NetworkController::handleRequest(const MakeDirectoryRequest* request)
+{
+	return new MakeDirectoryResponse(request->id);
+}
+
+MoveFileResponse* NetworkController::handleRequest(const MoveFileRequest* request)
+{
+	return new MoveFileResponse(request->id);
+}
+
+CopyFileResponse* NetworkController::handleRequest(const CopyFileRequest* request)
+{
+	return new CopyFileResponse(request->id);
+}
+
+UploadFileResponse* NetworkController::handleRequest(const UploadFileRequest* request)
+{
+	return new UploadFileResponse(request->id);
+}
+
+DownloadFileResponse* NetworkController::handleRequest(const DownloadFileRequest* request)
+{
+	return new DownloadFileResponse(request->id);
+}
+
+RemoveFileResponse* NetworkController::handleRequest(const RemoveFileRequest* request)
+{
+	return new RemoveFileResponse(request->id);
+}
+
+UploadDataResponse* NetworkController::handleRequest(const UploadDataRequest* request)
+{
+	return new UploadDataResponse(request->id);
+}
+
+DownloadDataResponse* NetworkController::handleRequest(const DownloadDataRequest* request)
+{
+	return new DownloadDataResponse(request->id);
+}
+
+CancelTransferResponse* NetworkController::handleRequest(const CancelTransferRequest* request)
+{
+	return new CancelTransferResponse(request->id);
 }

@@ -27,7 +27,7 @@ struct SECUREFILETRANSFER_EXPORT AppLayerMessage
 	// 公共子过程：序列化报文头部
 	char* serializeHeader(char* data, int size) const;
 
-	const quint32 id; // 报文的序列号，用于匹配响应和请求
+	const quint32 id; // 请求的序列号，用于匹配响应和请求
 	const Type type; // 报文类型
 };
 
@@ -172,5 +172,350 @@ struct SECUREFILETRANSFER_EXPORT DeleteUserResponse : public Response
 	enum class Result : quint8
 	{
 		SUCCESS, DID_NOT_LOGIN
+	} result = Result::SUCCESS;
+};
+
+// 列出文件请求
+struct SECUREFILETRANSFER_EXPORT ListFilesRequest : public Request
+{
+	ListFilesRequest(quint32 id) : Request(id, Type::LIST_FILES) {}
+	ListFilesRequest(quint32 id, const char* data)
+		: Request(id, Type::LIST_FILES) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	QString directory;
+};
+
+// 列出文件响应
+struct SECUREFILETRANSFER_EXPORT ListFilesResponse : public Response
+{
+	ListFilesResponse(quint32 id) : Response(id, Type::LIST_FILES) {}
+	ListFilesResponse(quint32 id, const char* data)
+		: Response(id, Type::LIST_FILES) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
+	{
+		SUCCESS, CANNOT_ACCESS
+	} result = Result::SUCCESS;
+
+	QVector<QString> filenames;
+};
+
+// 创建目录请求
+struct SECUREFILETRANSFER_EXPORT MakeDirectoryRequest : public Request
+{
+	MakeDirectoryRequest(quint32 id) : Request(id, Type::MAKE_DIRECTORY) {}
+	MakeDirectoryRequest(quint32 id, const char* data)
+		: Request(id, Type::MAKE_DIRECTORY) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	QString path;
+};
+
+// 创建目录响应
+struct SECUREFILETRANSFER_EXPORT MakeDirectoryResponse : public Response
+{
+	MakeDirectoryResponse(quint32 id) : Response(id, Type::MAKE_DIRECTORY) {}
+	MakeDirectoryResponse(quint32 id, const char* data)
+		: Response(id, Type::MAKE_DIRECTORY) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
+	{
+		SUCCESS, CANNOT_ACCESS, FILE_EXISTS
+	} result = Result::SUCCESS;
+};
+
+// 移动文件请求
+struct SECUREFILETRANSFER_EXPORT MoveFileRequest : public Request
+{
+	MoveFileRequest(quint32 id) : Request(id, Type::MOVE_FILE) {}
+	MoveFileRequest(quint32 id, const char* data)
+		: Request(id, Type::MOVE_FILE) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	QString dst;
+	QString src;
+	bool force = false; // 是否强制覆盖目标文件
+};
+
+// 移动文件响应
+struct SECUREFILETRANSFER_EXPORT MoveFileResponse : public Response
+{
+	MoveFileResponse(quint32 id) : Response(id, Type::MOVE_FILE) {}
+	MoveFileResponse(quint32 id, const char* data)
+		: Response(id, Type::MOVE_FILE) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
+	{
+		SUCCESS, CANNOT_ACCESS, FILE_EXISTS, FILE_OCCUPIED, CONTENT_OCCUPIED
+	} result = Result::SUCCESS;
+};
+
+// 复制文件请求
+struct SECUREFILETRANSFER_EXPORT CopyFileRequest : public Request
+{
+	CopyFileRequest(quint32 id) : Request(id, Type::COPY_FILE) {}
+	CopyFileRequest(quint32 id, const char* data)
+		: Request(id, Type::COPY_FILE) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	QString dst;
+	QString src;
+	bool force = false; // 是否强制覆盖目标文件
+};
+
+// 复制文件响应
+struct SECUREFILETRANSFER_EXPORT CopyFileResponse : public Response
+{
+	CopyFileResponse(quint32 id) : Response(id, Type::COPY_FILE) {}
+	CopyFileResponse(quint32 id, const char* data)
+		: Response(id, Type::COPY_FILE) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
+	{
+		SUCCESS, CANNOT_ACCESS, FILE_EXISTS, FILE_OCCUPIED, CONTENT_OCCUPIED
+	} result = Result::SUCCESS;
+};
+
+// 上传文件请求
+struct SECUREFILETRANSFER_EXPORT UploadFileRequest : public Request
+{
+	UploadFileRequest(quint32 id) : Request(id, Type::UPLOAD_FILE) {}
+	UploadFileRequest(quint32 id, const char* data)
+		: Request(id, Type::UPLOAD_FILE) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	QString dst;
+	bool force = false; // 是否强制覆盖目标文件
+};
+
+// 上传文件响应
+struct SECUREFILETRANSFER_EXPORT UploadFileResponse : public Response
+{
+	UploadFileResponse(quint32 id) : Response(id, Type::UPLOAD_FILE) {}
+	UploadFileResponse(quint32 id, const char* data)
+		: Response(id, Type::UPLOAD_FILE) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
+	{
+		SUCCESS, CANNOT_ACCESS, FILE_EXISTS
+	} result = Result::SUCCESS;
+};
+
+// 下载文件请求
+struct SECUREFILETRANSFER_EXPORT DownloadFileRequest : public Request
+{
+	DownloadFileRequest(quint32 id) : Request(id, Type::DOWNLOAD_FILE) {}
+	DownloadFileRequest(quint32 id, const char* data)
+		: Request(id, Type::DOWNLOAD_FILE) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	QString src;
+};
+
+// 下载文件响应
+struct SECUREFILETRANSFER_EXPORT DownloadFileResponse : public Response
+{
+	DownloadFileResponse(quint32 id) : Response(id, Type::DOWNLOAD_FILE) {}
+	DownloadFileResponse(quint32 id, const char* data)
+		: Response(id, Type::DOWNLOAD_FILE) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
+	{
+		SUCCESS, CANNOT_ACCESS
+	} result = Result::SUCCESS;
+
+	quint64 fileSize;
+};
+
+// 删除文件请求
+struct SECUREFILETRANSFER_EXPORT RemoveFileRequest : public Request
+{
+	RemoveFileRequest(quint32 id) : Request(id, Type::REMOVE_FILE) {}
+	RemoveFileRequest(quint32 id, const char* data)
+		: Request(id, Type::REMOVE_FILE) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	QString dst;
+};
+
+// 删除文件响应
+struct SECUREFILETRANSFER_EXPORT RemoveFileResponse : public Response
+{
+	RemoveFileResponse(quint32 id) : Response(id, Type::REMOVE_FILE) {}
+	RemoveFileResponse(quint32 id, const char* data)
+		: Response(id, Type::REMOVE_FILE) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
+	{
+		SUCCESS, CANNOT_ACCESS, FILE_OCCUPIED, CONTENT_OCCUPIED
+	} result = Result::SUCCESS;
+};
+
+// 上传数据请求
+struct SECUREFILETRANSFER_EXPORT UploadDataRequest : public Request
+{
+	UploadDataRequest(quint32 id) : Request(id, Type::UPLOAD_DATA) {}
+	UploadDataRequest(quint32 id, const char* data)
+		: Request(id, Type::UPLOAD_DATA) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	quint64 offset;
+	quint32 parentId;
+	QByteArray data;
+};
+
+// 上传数据响应
+struct SECUREFILETRANSFER_EXPORT UploadDataResponse : public Response
+{
+	UploadDataResponse(quint32 id) : Response(id, Type::UPLOAD_DATA) {}
+	UploadDataResponse(quint32 id, const char* data)
+		: Response(id, Type::UPLOAD_DATA) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
+	{
+		SUCCESS, INVALID_ARGUMENT
+	} result = Result::SUCCESS;
+};
+
+// 下载数据请求
+struct SECUREFILETRANSFER_EXPORT DownloadDataRequest : public Request
+{
+	DownloadDataRequest(quint32 id) : Request(id, Type::DOWNLOAD_DATA) {}
+	DownloadDataRequest(quint32 id, const char* data)
+		: Request(id, Type::DOWNLOAD_DATA) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	quint64 offset;
+	quint32 parentId;
+	quint32 size;
+};
+
+// 下载数据响应
+struct SECUREFILETRANSFER_EXPORT DownloadDataResponse : public Response
+{
+	DownloadDataResponse(quint32 id) : Response(id, Type::DOWNLOAD_DATA) {}
+	DownloadDataResponse(quint32 id, const char* data)
+		: Response(id, Type::DOWNLOAD_DATA) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
+	{
+		SUCCESS, INVALID_ARGUMENT
+	} result = Result::SUCCESS;
+
+	QByteArray data;
+};
+
+// 取消传输请求
+struct SECUREFILETRANSFER_EXPORT CancelTransferRequest : public Request
+{
+	CancelTransferRequest(quint32 id) : Request(id, Type::CANCEL_TRANSFER) {}
+	CancelTransferRequest(quint32 id, const char* data)
+		: Request(id, Type::CANCEL_TRANSFER) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	quint32 parentId;
+};
+
+// 取消传输响应
+struct SECUREFILETRANSFER_EXPORT CancelTransferResponse : public Response
+{
+	CancelTransferResponse(quint32 id) : Response(id, Type::CANCEL_TRANSFER) {}
+	CancelTransferResponse(quint32 id, const char* data)
+		: Response(id, Type::CANCEL_TRANSFER) {
+		deserialize(data);
+	}
+
+	QByteArray serialize() const override;
+	void deserialize(const char* data);
+
+	enum class Result : quint8
+	{
+		SUCCESS, INVALID_ARGUMENT
 	} result = Result::SUCCESS;
 };
