@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../SecureFileTransfer/AppLayerMessage.h"
+#include "UserService.h"
 
 class RequestController : public QObject
 {
@@ -36,4 +36,7 @@ private:
 	CancelTransferResponse* handleRequest(const CancelTransferRequest* request);
 
 	void handleRequestConcurrent(QSharedPointer<Request> request);
+
+private:
+	UserService userService;
 };

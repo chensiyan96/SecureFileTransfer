@@ -98,9 +98,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AppLayerMessage.h" />
+    <QtMoc Include="FileService.h" />
     <ClInclude Include="securefiletransfer_global.h" />
     <QtMoc Include="SecureFileTransfer.h" />
     <ClCompile Include="AppLayerMessage.cpp" />
+    <ClCompile Include="FileService.cpp" />
     <ClCompile Include="SecureFileTransfer.cpp" />
     <ClInclude Include="stdafx.h" />
     <ClCompile Include="stdafx.cpp">

@@ -67,6 +67,9 @@
     <ClCompile Include="RequestController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UserService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ServerMainWindow.h">
@@ -82,6 +85,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="RequestController.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="UserService.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

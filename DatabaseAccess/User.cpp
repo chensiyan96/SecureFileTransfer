@@ -48,6 +48,8 @@ bool dao::selectUserById(int id, User& user)
 
 bool dao::selectUserByName(QString username, User& user)
 {
+    qDebug() << QThread::currentThread();
+
     QSqlQuery query;
     query.prepare("select * from [user] where [username] = ?");
     query.addBindValue(username);

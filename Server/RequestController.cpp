@@ -54,72 +54,96 @@ void RequestController::handleRequestAsync(QSharedPointer<Request> request)
 
 RegisterResponse* RequestController::handleRequest(const RegisterRequest* request)
 {
-	return new RegisterResponse(request->id);
+	if (request->username.size() > 255 || request->username.size() == 0)
+	{
+		auto response = new RegisterResponse(request->id);
+		response->result = RegisterResponse::Result::INVALID_ARGUMENT;
+		return response;
+	}
+	return userService.handleRequest(request);
 }
 
 LoginResponse* RequestController::handleRequest(const LoginRequest* request)
 {
-	return new LoginResponse(request->id);
+	if (request->username.size() > 255 || request->username.size() == 0)
+	{
+		auto response = new LoginResponse(request->id);
+		response->result = LoginResponse::Result::INVALID_ARGUMENT;
+		return response;
+	}
+	return userService.handleRequest(request);
 }
 
 LogoutResponse* RequestController::handleRequest(const LogoutRequest* request)
 {
-	return new LogoutResponse(request->id);
+	auto response = new LogoutResponse(request->id);
+	return response;
 }
 
 DeleteUserResponse* RequestController::handleRequest(const DeleteUserRequest* request)
 {
-	return new DeleteUserResponse(request->id);
+	auto response = new DeleteUserResponse(request->id);
+	return response;
 }
 
 ListFilesResponse* RequestController::handleRequest(const ListFilesRequest* request)
 {
-	return new ListFilesResponse(request->id);
+	auto response = new ListFilesResponse(request->id);
+	return response;
 }
 
 MakeDirectoryResponse* RequestController::handleRequest(const MakeDirectoryRequest* request)
 {
-	return new MakeDirectoryResponse(request->id);
+	auto response = new MakeDirectoryResponse(request->id);
+	return response;
 }
 
 MoveFileResponse* RequestController::handleRequest(const MoveFileRequest* request)
 {
-	return new MoveFileResponse(request->id);
+	auto response = new MoveFileResponse(request->id);
+	return response;
 }
 
 CopyFileResponse* RequestController::handleRequest(const CopyFileRequest* request)
 {
-	return new CopyFileResponse(request->id);
+	auto response = new CopyFileResponse(request->id);
+	return response;
 }
 
 UploadFileResponse* RequestController::handleRequest(const UploadFileRequest* request)
 {
-	return new UploadFileResponse(request->id);
+	auto response = new UploadFileResponse(request->id);
+	return response;
 }
 
 DownloadFileResponse* RequestController::handleRequest(const DownloadFileRequest* request)
 {
-	return new DownloadFileResponse(request->id);
+	auto response = new DownloadFileResponse(request->id);
+	return response;
 }
 
 RemoveFileResponse* RequestController::handleRequest(const RemoveFileRequest* request)
 {
-	return new RemoveFileResponse(request->id);
+	auto response = new RemoveFileResponse(request->id);
+	return response;
 }
 
 UploadDataResponse* RequestController::handleRequest(const UploadDataRequest* request)
 {
-	return new UploadDataResponse(request->id);
+	auto response = new UploadDataResponse(request->id);
+	return response;
 }
 
 DownloadDataResponse* RequestController::handleRequest(const DownloadDataRequest* request)
 {
-	return new DownloadDataResponse(request->id);
+	auto response = new DownloadDataResponse(request->id);
+	return response;
 }
 
 CancelTransferResponse* RequestController::handleRequest(const CancelTransferRequest* request)
 {
-	return new CancelTransferResponse(request->id);
+	auto response = new CancelTransferResponse(request->id);
+	return response;
 }
 
 void RequestController::handleRequestConcurrent(QSharedPointer<Request> request)

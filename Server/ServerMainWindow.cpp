@@ -9,7 +9,4 @@ ServerMainWindow::ServerMainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
-    auto db = new DatabaseAccess;
-    auto test = new SecureFileTransfer;
-    test->testServer();
 }

@@ -95,6 +95,8 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="UserService.cpp" />
+    <QtMoc Include="UserService.h" />
     <QtRcc Include="ServerMainWindow.qrc" />
     <QtUic Include="ServerMainWindow.ui" />
     <QtMoc Include="ServerMainWindow.h" />

@@ -426,18 +426,18 @@ void DownloadFileResponse::deserialize(const char* data)
 
 QByteArray RemoveFileRequest::serialize() const
 {
-	auto dst_utf8 = dst.toUtf8();
-	QByteArray result(8 + dst_utf8.size() + 1, Qt::Uninitialized);
+	auto path_utf8 = path.toUtf8();
+	QByteArray result(8 + path_utf8.size() + 1, Qt::Uninitialized);
 	auto data = serializeHeader(result.data(), result.size());
-	memcpy_s(data, dst_utf8.size(), dst_utf8.constData(), dst_utf8.size());
-	data += dst_utf8.size();
+	memcpy_s(data, path_utf8.size(), path_utf8.constData(), path_utf8.size());
+	data += path_utf8.size();
 	*data = '\0';
 	return result;
 }
 
 void RemoveFileRequest::deserialize(const char* data)
 {
-	dst = QString(data);
+	path = QString(data);
 }
 
 QByteArray RemoveFileResponse::serialize() const

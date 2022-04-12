@@ -41,3 +41,10 @@ DatabaseAccess::DatabaseAccess()
     dao::updateUserPassword(user);
     dao::deleteUserById(user.id);
 }
+
+bool connectToDatabase()
+{
+    auto db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("D:/info.db");
+    return db.open();
+}

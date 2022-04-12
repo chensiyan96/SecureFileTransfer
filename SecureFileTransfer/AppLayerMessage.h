@@ -394,7 +394,7 @@ struct SECUREFILETRANSFER_EXPORT RemoveFileRequest : public Request
 	QByteArray serialize() const override;
 	void deserialize(const char* data);
 
-	QString dst;
+	QString path;
 };
 
 // É¾³ıÎÄ¼şÏìÓ¦

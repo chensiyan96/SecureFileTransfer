@@ -19,7 +19,8 @@ StateController::StateController(QObject* parent)
 	stateMachine.addState(loginState);
 	stateMachine.addState(mainState);
 
-	connectState->addTransition(connectState, &ConnectState::connectedToServer, loginState);
+	connectState->addTransition(connectState, &ConnectState::connectedToServer, registerState);
+	registerState->addTransition(registerState, &RegisterState::registerFinished, loginState);
 	loginState->addTransition(loginState, &LoginState::loginFinished, mainState);
 
 	stateMachine.setInitialState(connectState);

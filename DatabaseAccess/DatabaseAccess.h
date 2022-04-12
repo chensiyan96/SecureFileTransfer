@@ -9,3 +9,5 @@ class DATABASEACCESS_EXPORT DatabaseAccess
 public:
     DatabaseAccess();
 };
+
+bool DATABASEACCESS_EXPORT connectToDatabase();
