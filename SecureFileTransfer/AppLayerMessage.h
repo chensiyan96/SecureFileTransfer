@@ -2,6 +2,8 @@
 
 #include "securefiletransfer_global.h"
 
+#include "RemoteFileInfo.h"
+
 // 应用层协议报文格式定义的基类
 struct SECUREFILETRANSFER_EXPORT AppLayerMessage
 {
@@ -207,7 +209,7 @@ struct SECUREFILETRANSFER_EXPORT ListFilesResponse : public Response
 		SUCCESS, CANNOT_ACCESS
 	} result = Result::SUCCESS;
 
-	QVector<QString> filenames;
+	QVector<RemoteFileInfo> infoVec;
 };
 
 // 创建目录请求

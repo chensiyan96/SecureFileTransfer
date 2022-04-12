@@ -22,9 +22,6 @@
     <ClInclude Include="databaseaccess_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <QtMoc Include="DatabaseAccess.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <ClCompile Include="DatabaseAccess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -35,6 +32,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClInclude Include="User.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseAccess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -225,17 +225,29 @@ void ListFilesRequest::deserialize(const char* data)
 
 QByteArray ListFilesResponse::serialize() const
 {
-	QByteArray result(11, Qt::Uninitialized);
+	QByteArray body;
+	auto num = quint16(infoVec.size() & 0xffff);
+	body.reserve(num * 128);
+	for (auto& info : infoVec)
+	{
+		body.append(info.fileName);
+		body.append('\0');
+		body.append(info.lastModified.toString());
+		body.append('\0');
+		QByteArray tmp(11, Qt::Uninitialized);
+		*reinterpret_cast<quint64*>(tmp.data()) = info.size;
+		*reinterpret_cast<bool*>(tmp.data() + 8) = info.isDirectory;
+		*reinterpret_cast<bool*>(tmp.data() + 9) = info.isReadable;
+		*reinterpret_cast<bool*>(tmp.data() + 10) = info.isWritable;
+		body.append(tmp);
+	}
+	QByteArray result(11 + body.size(), Qt::Uninitialized);
 	auto data = serializeHeader(result.data(), result.size());
 	*reinterpret_cast<Result*>(data) = this->result;
 	data += 1;
-	auto num = quint16(filenames.size() & 0xffff);
 	*reinterpret_cast<quint16*>(data) = num;
-	for (auto name : filenames)
-	{
-		result.append(name);
-		result.append('\0');
-	}
+	data += 2;
+	memcpy_s(data, body.size(), body.constData(), body.size());
 	return result;
 }
 
@@ -245,11 +257,21 @@ void ListFilesResponse::deserialize(const char* data)
 	data += 1;
 	int num = (int)*reinterpret_cast<const quint16*>(data);
 	data += 2;
-	filenames.resize(num);
-	for (int i = 0; i < num; i++)
+	infoVec.resize(num);
+	for (auto& info : infoVec)
 	{
-		filenames[i] = QString(data);
+		info.fileName = QString(data);
 		while (*data++);
+		info.lastModified = QDateTime::fromString(data);
+		while (*data++);
+		info.size = *reinterpret_cast<const quint64*>(data);
+		data += 8;
+		info.isDirectory = *reinterpret_cast<const bool*>(data);
+		data += 1;
+		info.isReadable = *reinterpret_cast<const bool*>(data);
+		data += 1;
+		info.isWritable = *reinterpret_cast<const bool*>(data);
+		data += 1;
 	}
 }
 

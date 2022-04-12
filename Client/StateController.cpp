@@ -19,7 +19,7 @@ StateController::StateController(QObject* parent)
 	stateMachine.addState(loginState);
 	stateMachine.addState(mainState);
 
-	connectState->addTransition(connectState, &ConnectState::connectedToServer, registerState);
+	connectState->addTransition(connectState, &ConnectState::connectedToServer, loginState);
 	registerState->addTransition(registerState, &RegisterState::registerFinished, loginState);
 	loginState->addTransition(loginState, &LoginState::loginFinished, mainState);
 
@@ -118,6 +118,9 @@ void MainState::onEntry(QEvent* event)
 		[](QSharedPointer<Request> request, int priority) {
 			NetworkController::instance->sendRequest(request, priority);
 		});
+	auto request = NetworkController::instance->newRequest<ListFilesRequest>();
+	request->directory = "D:/SecureFileTransfer";
+	NetworkController::instance->sendRequest(request, 0);
 }
 
 void MainState::onExit(QEvent* event)

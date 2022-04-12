@@ -89,24 +89,28 @@ DeleteUserResponse* RequestController::handleRequest(const DeleteUserRequest* re
 ListFilesResponse* RequestController::handleRequest(const ListFilesRequest* request)
 {
 	auto response = new ListFilesResponse(request->id);
+	fileService.listFiles(request->directory, response->infoVec);
 	return response;
 }
 
 MakeDirectoryResponse* RequestController::handleRequest(const MakeDirectoryRequest* request)
 {
 	auto response = new MakeDirectoryResponse(request->id);
+	fileService.makeDirectory(request->path);
 	return response;
 }
 
 MoveFileResponse* RequestController::handleRequest(const MoveFileRequest* request)
 {
 	auto response = new MoveFileResponse(request->id);
+	fileService.moveFile(request->dst, request->src, request->force);
 	return response;
 }
 
 CopyFileResponse* RequestController::handleRequest(const CopyFileRequest* request)
 {
 	auto response = new CopyFileResponse(request->id);
+	fileService.copyFile(request->dst, request->src, request->force);
 	return response;
 }
 
@@ -125,6 +129,7 @@ DownloadFileResponse* RequestController::handleRequest(const DownloadFileRequest
 RemoveFileResponse* RequestController::handleRequest(const RemoveFileRequest* request)
 {
 	auto response = new RemoveFileResponse(request->id);
+	fileService.removeFile(request->path);
 	return response;
 }
 

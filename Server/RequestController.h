@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UserService.h"
+#include "../SecureFileTransfer/FileService.h"
 
 class RequestController : public QObject
 {
@@ -39,4 +40,5 @@ private:
 
 private:
 	UserService userService;
+	FileService fileService;
 };
