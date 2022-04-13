@@ -191,8 +191,6 @@ void MainState::onEntry(QEvent* event)
 	connect(NetworkController::instance, &NetworkController::receivedResponse, this, &MainState::checkResponse);
 
 	auto request = NetworkController::instance->newRequest<ListFilesRequest>();
-	request->directory = "D:/test";
-	NetworkController::instance->sendRequest(request, 0);
 	ClientMainWindow::instance->onMainStateEntry();
 }
 

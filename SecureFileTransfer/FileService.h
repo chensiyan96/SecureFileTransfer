@@ -26,8 +26,6 @@ public:
 
 	Result openReadFile(QString path, QFile& file);
 	Result createWriteFile(QString path, QFile& file);
-	Result readFile(QFile& file, quint64 offset, QByteArray& data);
-	Result writeFile(QFile& file, quint64 offset, const QByteArray& data);
 
 private:
 	bool isAccessible(QString path);

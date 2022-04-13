@@ -387,12 +387,14 @@ void CopyFileResponse::deserialize(const char* data)
 QByteArray UploadFileRequest::serialize() const
 {
 	auto dst_utf8 = dst.toUtf8();
-	QByteArray result(8 + dst_utf8.size() + 1 + 1, Qt::Uninitialized);
+	QByteArray result(8 + dst_utf8.size() + 10, Qt::Uninitialized);
 	auto data = serializeHeader(result.data(), result.size());
 	memcpy_s(data, dst_utf8.size(), dst_utf8.constData(), dst_utf8.size());
 	data += dst_utf8.size();
 	*data = '\0';
 	data += 1;
+	*reinterpret_cast<quint64*>(data) = size;
+	data += 8;
 	*reinterpret_cast<bool*>(data) = force;
 	return result;
 }
@@ -401,6 +403,8 @@ void UploadFileRequest::deserialize(const char* data)
 {
 	dst = QString(data);
 	while (*data++);
+	size = *reinterpret_cast<const quint64*>(data);
+	data += 8;
 	force = *reinterpret_cast<const bool*>(data);
 }
 
@@ -498,6 +502,7 @@ void UploadDataRequest::deserialize(const char* data)
 	data += 4;
 	int size = *reinterpret_cast<const int*>(data);
 	data += 4;
+	this->data.resize(size);
 	memcpy_s(this->data.data(), size, data, size);
 }
 

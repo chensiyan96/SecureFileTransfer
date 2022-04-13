@@ -17,6 +17,7 @@ struct TransferTask
 	QString src;
 	quint64 transferedSize = 0;
 	quint64 totalSize = 0;
+	quint32 requestId = 0;
 };
 
 class TransferModel : public QAbstractTableModel

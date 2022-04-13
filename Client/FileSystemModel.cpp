@@ -54,7 +54,7 @@ QString FileSystemModel::getFileName(int row) const
 
 QString FileSystemModel::getPath(QString fileName) const
 {
-	return openedDirectory + "/" + fileName;
+	return openedDirectory + fileName;
 }
 
 static QString getSizeString(quint64 bytes)
@@ -149,7 +149,7 @@ LocalFileSystemModel::LocalFileSystemModel(QObject* parent)
 
 void LocalFileSystemModel::refresh()
 {
-	openedDirectory = "D:/test";
+	openedDirectory = "D:/";
 	beginResetModel();
 	fileService.listFiles(openedDirectory, infoVec);
 	endResetModel();
@@ -157,7 +157,7 @@ void LocalFileSystemModel::refresh()
 
 void RemoteFileSystemModel::refresh()
 {
-	openedDirectory = "D:/test";
+	openedDirectory = "D:/test/";
 	auto request = NetworkController::instance->newRequest<ListFilesRequest>();
 	request->directory = openedDirectory;
 	NetworkController::instance->sendRequest(request, 1);

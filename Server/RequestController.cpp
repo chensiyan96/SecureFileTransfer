@@ -226,8 +226,9 @@ UploadFileResponse* RequestController::handleRequest(QSslSocket* socket, const U
 	}
 	else
 	{
-		std::unique_ptr<QFile> filePtr;
-		auto result = fileService.createWriteFile(request->dst, *filePtr);
+		auto task = new FileDataTask;
+		task->totalSize = request->size;
+		auto result = fileService.createWriteFile(request->dst, task->file);
 		switch (result)
 		{
 		case FileService::Result::CANNOT_ACCESS:
@@ -238,7 +239,7 @@ UploadFileResponse* RequestController::handleRequest(QSslSocket* socket, const U
 			return response;
 		}
 		openedFilesMutex.lock();
-		openedFiles.emplace(request->id, std::move(filePtr));
+		openedFiles.emplace(std::make_pair(socket, request->id), task);
 		openedFilesMutex.unlock();
 	}
 	return response;
@@ -257,8 +258,8 @@ DownloadFileResponse* RequestController::handleRequest(QSslSocket* socket, const
 	}
 	else
 	{
-		std::unique_ptr<QFile> filePtr;
-		auto result = fileService.openReadFile(request->src, *filePtr);
+		auto task = new FileDataTask;
+		auto result = fileService.openReadFile(request->src, task->file);
 		switch (result)
 		{
 		case FileService::Result::CANNOT_ACCESS:
@@ -268,8 +269,9 @@ DownloadFileResponse* RequestController::handleRequest(QSslSocket* socket, const
 			response->result = DownloadFileResponse::Result::CANNOT_READ;
 			return response;
 		}
+		task->totalSize = task->file.size();
 		openedFilesMutex.lock();
-		openedFiles.emplace(request->id, std::move(filePtr));
+		openedFiles.emplace(std::make_pair(socket, request->id), task);
 		openedFilesMutex.unlock();
 	}
 	return response;
@@ -313,22 +315,38 @@ UploadDataResponse* RequestController::handleRequest(QSslSocket* socket, const U
 	}
 	auto response = new UploadDataResponse(request->id);
 	openedFilesMutex.lock();
-	auto iter = openedFiles.find(request->parentId);
+	auto iter = openedFiles.find(std::make_pair(socket, request->parentId));
 	if (iter == openedFiles.end())
 	{
 		response->result = UploadDataResponse::Result::INVALID_ARGUMENT;
 		openedFilesMutex.unlock();
 		return response;
 	}
-	auto& file = *iter->second;
+	auto& task = *iter->second;
 	openedFilesMutex.unlock();
-	auto result = fileService.writeFile(file, request->offset, request->data);
-	switch (result)
+
+	// 写文件
+	task.mutex.lock();
+	task.file.seek(request->offset);
+	auto n = (int)task.file.write(request->data);
+	if (n == request->data.size())
 	{
-	case FileService::Result::CANNOT_WRITE:
-		response->result = UploadDataResponse::Result::CANNOT_WRITE;
-		break;
+		task.transferedSize += n;
+		if (task.transferedSize == task.totalSize)
+		{
+			task.file.close();
+			task.mutex.unlock();
+			openedFilesMutex.lock();
+			openedFiles.erase(iter);
+			openedFilesMutex.unlock();
+			return response;
+		}
 	}
+	else
+	{
+		response->result = UploadDataResponse::Result::CANNOT_WRITE;
+	}
+	task.mutex.unlock();
 	return response;
 }
 
@@ -340,22 +358,38 @@ DownloadDataResponse* RequestController::handleRequest(QSslSocket* socket, const
 	}
 	auto response = new DownloadDataResponse(request->id);
 	openedFilesMutex.lock();
-	auto iter = openedFiles.find(request->parentId);
+	auto iter = openedFiles.find(std::make_pair(socket, request->parentId));
 	if (iter == openedFiles.end())
 	{
 		response->result = DownloadDataResponse::Result::INVALID_ARGUMENT;
 		openedFilesMutex.unlock();
 		return response;
 	}
-	auto& file = *iter->second;
+	auto& task = *iter->second;
 	openedFilesMutex.unlock();
-	auto result = fileService.readFile(file, request->offset, response->data);
-	switch (result)
+
+	// 读文件
+	task.mutex.lock();
+	task.file.seek(request->offset);
+	response->data = task.file.read(request->size);
+	if (response->data.size() == request->size)
 	{
-	case FileService::Result::CANNOT_READ:
-		response->result = DownloadDataResponse::Result::CANNOT_READ;
-		break;
+		task.transferedSize += request->size;
+		if (task.transferedSize == task.totalSize)
+		{
+			task.file.close();
+			task.mutex.unlock();
+			openedFilesMutex.lock();
+			openedFiles.erase(iter);
+			openedFilesMutex.unlock();
+			return response;
+		}
 	}
+	else
+	{
+		response->result = DownloadDataResponse::Result::CANNOT_READ;
+	}
+	task.mutex.unlock();
 	return response;
 }
 

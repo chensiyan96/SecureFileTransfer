@@ -41,8 +41,17 @@ private:
 	bool checkPath(QString path);
 
 private:
+	struct FileDataTask
+	{
+		QMutex mutex;
+		QFile file;
+		quint64 transferedSize = 0;
+		quint64 totalSize = 0;
+	};
+
+private:
 	UserService userService;
 	FileService fileService;
-	std::map<quint32, std::unique_ptr<QFile>> openedFiles;
+	std::map<std::pair<QSslSocket*, quint32>, std::unique_ptr<FileDataTask>> openedFiles;
 	QMutex openedFilesMutex;
 };

@@ -190,20 +190,6 @@ FileService::Result FileService::createWriteFile(QString path, QFile& file)
 	return file.exists() ? FileService::Result::FILE_EXISTS : FileService::Result::CANNOT_ACCESS;
 }
 
-FileService::Result FileService::readFile(QFile& file, quint64 offset, QByteArray& data)
-{
-	file.seek(offset);
-	auto n = (int)file.read(data.data(), data.size());
-	return n == data.size() ? FileService::Result::SUCCESS : FileService::Result::CANNOT_READ;
-}
-
-FileService::Result FileService::writeFile(QFile& file, quint64 offset, const QByteArray& data)
-{
-	file.seek(offset);
-	auto n = (int)file.write(data.constData(), data.size());
-	return n == data.size() ? FileService::Result::SUCCESS : FileService::Result::CANNOT_WRITE;
-}
-
 bool FileService::isAccessible(QString path)
 {
 	if (allDirectoriesAccessible)
@@ -229,10 +215,18 @@ FileService::Result FileService::copyFileRecursive(QString dstDir, QString srcDi
 	{
 		return FileService::Result::FILE_EXISTS;
 	}
+	if (dstDir.back() != '/')
+	{
+		dstDir.append('/');
+	}
+	if (srcDir.back() != '/')
+	{
+		srcDir.append('/');
+	}
 	for (auto& info : infoVec)
 	{
-		auto dst = dstDir + "/" + info.fileName;
-		auto src = srcDir + "/" + info.fileName;
+		auto dst = dstDir + info.fileName;
+		auto src = srcDir + info.fileName;
 		if (!QFile::exists(src))
 		{
 			continue;

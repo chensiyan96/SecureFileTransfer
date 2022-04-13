@@ -328,6 +328,7 @@ struct SECUREFILETRANSFER_EXPORT UploadFileRequest : public Request
 	void deserialize(const char* data);
 
 	QString dst;
+	quint64 size;
 	bool force = false; // 是否强制覆盖目标文件
 };
 

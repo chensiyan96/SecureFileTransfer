@@ -47,6 +47,7 @@ ClientMainWindow::ClientMainWindow(QWidget *parent)
 void ClientMainWindow::onMainStateEntry()
 {
     connect(NetworkController::instance, &NetworkController::receivedResponse, &remoteFileSystemModel, &RemoteFileSystemModel::checkResponse);
+    remoteFileSystemModel.refresh();
 }
 
 void ClientMainWindow::onMainStateExit()

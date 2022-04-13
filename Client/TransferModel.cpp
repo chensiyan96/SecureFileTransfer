@@ -120,7 +120,8 @@ QVariant TransferModel::getDisplayData(int row, int column) const
 	case 3: // 源路径
 		return iter->src;
 	case 4: // 进度
-		return QString::number(double(iter->transferedSize) / double(iter->totalSize), 'f', 0) + "%";
+		return iter->totalSize == 0 ? QVariant() :
+			QString::number(double(iter->transferedSize) / double(iter->totalSize), 'f', 0) + "%";
 	default:
 		return QVariant();
 	}
@@ -187,7 +188,29 @@ TransferModel::UploadWorker::UploadWorker(TransferModel* master)
 
 void TransferModel::UploadWorker::doTaskAt(QLinkedList<TransferTask>::iterator iter)
 {
-	QThread::sleep(10);
+	master->beginResetModel();
+	iter->state = TransferTask::State::PREPARE;
+	master->endResetModel();
+
+	QFile file(iter->src);
+	file.open(QIODevice::ReadOnly);
+	auto request = NetworkController::instance->newRequest<UploadFileRequest>();
+	request->dst = iter->dst;
+	request->size = file.size();
+	NetworkController::instance->sendRequest(request, 1);
+	iter->requestId = request->id;
+	
+	quint64 offset = 0;
+	while (!file.atEnd())
+	{
+		auto request = NetworkController::instance->newRequest<UploadDataRequest>();
+		request->offset = offset;
+		request->parentId = iter->requestId;
+		request->data = file.read(1 << 16); // 64KB
+		offset += 1 << 16;
+		NetworkController::instance->sendRequest(request, 1);
+	}
+	file.close();
 }
 
 TransferModel::DownloadWorker::DownloadWorker(TransferModel* master)
