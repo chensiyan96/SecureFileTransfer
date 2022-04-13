@@ -379,5 +379,5 @@ void RequestController::handleRequestConcurrent(QSslSocket* socket, QSharedPoint
 
 bool RequestController::checkPath(QString path)
 {
-	return QFileInfo(path).absolutePath() == path;
+	return QFileInfo(path).absoluteFilePath() == path;
 }

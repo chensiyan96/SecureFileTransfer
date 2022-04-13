@@ -33,6 +33,9 @@
       </item>
       <item row="1" column="0">
        <widget class="QTableView" name="tableView_local">
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
         <property name="sizeAdjustPolicy">
          <enum>QAbstractScrollArea::AdjustIgnored</enum>
         </property>
@@ -46,6 +49,9 @@
       </item>
       <item row="1" column="1">
        <widget class="QTableView" name="tableView_remote">
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
         </property>
@@ -55,6 +61,9 @@
     </item>
     <item>
      <widget class="QTableView" name="tableView_transfer">
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
+      </property>
       <property name="selectionBehavior">
        <enum>QAbstractItemView::SelectRows</enum>
       </property>
@@ -145,39 +154,28 @@
     <string>Ctrl+V</string>
    </property>
   </action>
-  <action name="action_newLocal">
-   <property name="text">
-    <string>新建本地选项卡</string>
-   </property>
-  </action>
-  <action name="action_newRemote">
-   <property name="text">
-    <string>新建远程选项卡</string>
-   </property>
-  </action>
   <action name="action_uploadFile">
    <property name="text">
     <string>上传</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
    </property>
   </action>
   <action name="action_downloadFile">
    <property name="text">
     <string>下载</string>
    </property>
-  </action>
-  <action name="action_moveFile">
-   <property name="text">
-    <string>移动</string>
-   </property>
-  </action>
-  <action name="action_copyFile">
-   <property name="text">
-    <string>复制</string>
+   <property name="shortcut">
+    <string>Left</string>
    </property>
   </action>
   <action name="action_deleteFile">
    <property name="text">
     <string>删除</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
    </property>
   </action>
   <action name="action_connect">
@@ -198,6 +196,9 @@
   <action name="action_login">
    <property name="text">
     <string>登录</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
   <action name="action_logout">

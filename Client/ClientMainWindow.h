@@ -5,6 +5,7 @@
 #include "../SecureFileTransfer/AppLayerMessage.h"
 
 #include "FileSystemModel.h"
+#include "TransferModel.h"
 
 class ClientMainWindow : public QMainWindow
 {
@@ -37,4 +38,5 @@ private:
     Ui::ClientMainWindowClass ui;
     LocalFileSystemModel localFileSystemModel;
     RemoteFileSystemModel remoteFileSystemModel;
+    TransferModel transferModel;
 };

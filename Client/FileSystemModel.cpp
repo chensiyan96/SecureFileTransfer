@@ -1,6 +1,9 @@
 #include "stdafx.h"
 
 #include "FileSystemModel.h"
+#include "NetworkController.h"
+
+constexpr int NUM_COLUMNS = 5;
 
 FileSystemModel::FileSystemModel(QObject *parent)
 	: QAbstractTableModel(parent)
@@ -14,7 +17,7 @@ int FileSystemModel::rowCount(const QModelIndex& parent) const
 
 int FileSystemModel::columnCount(const QModelIndex& parent) const
 {
-	return 5;
+	return NUM_COLUMNS;
 }
 
 QVariant FileSystemModel::data(const QModelIndex& index, int role) const
@@ -38,11 +41,20 @@ QVariant FileSystemModel::headerData(int section, Qt::Orientation orientation, i
 {
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
 	{
-		constexpr int NUM_COLUMNS = 5;
-		static const QString s[] = { u8"名称", u8"大小", u8"类型", u8"访问权限", u8"修改时间"};
+		static const QString s[NUM_COLUMNS] = { u8"名称", u8"大小", u8"类型", u8"访问权限", u8"修改时间"};
 		return section >= 0 && section < NUM_COLUMNS ? s[section] : QVariant();
 	}
 	return QAbstractTableModel::headerData(section, orientation, role);
+}
+
+QString FileSystemModel::getFileName(int row) const
+{
+	return infoVec[row].fileName;
+}
+
+QString FileSystemModel::getPath(QString fileName) const
+{
+	return openedDirectory + "/" + fileName;
 }
 
 static QString getSizeString(quint64 bytes)
@@ -137,10 +149,18 @@ LocalFileSystemModel::LocalFileSystemModel(QObject* parent)
 
 void LocalFileSystemModel::refresh()
 {
-	openedDirectory = QDir::currentPath();
+	openedDirectory = "D:/test";
 	beginResetModel();
 	fileService.listFiles(openedDirectory, infoVec);
 	endResetModel();
+}
+
+void RemoteFileSystemModel::refresh()
+{
+	openedDirectory = "D:/test";
+	auto request = NetworkController::instance->newRequest<ListFilesRequest>();
+	request->directory = openedDirectory;
+	NetworkController::instance->sendRequest(request, 1);
 }
 
 void RemoteFileSystemModel::checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response)

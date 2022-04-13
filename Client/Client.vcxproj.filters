@@ -73,6 +73,9 @@
     <ClCompile Include="FileSystemModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TransferModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="StateController.h">
@@ -94,6 +97,9 @@
       <Filter>Header Files\view</Filter>
     </QtMoc>
     <QtMoc Include="FileSystemModel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="TransferModel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

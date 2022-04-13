@@ -34,12 +34,14 @@ ClientMainWindow::ClientMainWindow(QWidget *parent)
 
     connect(ui.action_uploadFile, &QAction::triggered, this, &ClientMainWindow::onActionUploadFileTriggered);
     connect(ui.action_downloadFile, &QAction::triggered, this, &ClientMainWindow::onActionDownloadFileTriggered);
+    connect(ui.action_deleteFile, &QAction::triggered, this, &ClientMainWindow::onActionDeleteFileTriggered);
 
     ui.tableView_local->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui.tableView_local->setModel(&localFileSystemModel);
     ui.tableView_remote->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui.tableView_remote->setModel(&remoteFileSystemModel);
     ui.tableView_transfer->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui.tableView_transfer->setModel(&transferModel);
 }
 
 void ClientMainWindow::onMainStateEntry()
@@ -52,45 +54,105 @@ void ClientMainWindow::onMainStateExit()
     NetworkController::instance->disconnect(&remoteFileSystemModel);
 }
 
+static QVector<QString> getFileNameVec(const QTableView& view, const FileSystemModel& model)
+{
+    auto selectedRows = view.selectionModel()->selectedRows();
+    QVector<QString> result;
+    result.reserve(selectedRows.size());
+    for (const auto& item : selectedRows)
+    {
+        auto fileName = model.getFileName(item.row());
+        qDebug() << fileName;
+        if (!fileName.isEmpty())
+        {
+            result.push_back(fileName);
+        }
+    }
+    return result;
+}
+
 void ClientMainWindow::onActionUploadFileTriggered()
 {
-    auto selectedRows = ui.tableView_local->selectionModel()->selectedRows();
-    if (selectedRows.isEmpty())
+    if (!ui.tableView_local->hasFocus())
+    {
+        QMessageBox::information(this, u8"消息", u8"请将鼠标焦点设置在本地目录窗口中", QMessageBox::Ok);
+        return;
+    }
+    auto fileNameVec = getFileNameVec(*ui.tableView_local, localFileSystemModel);
+    if (fileNameVec.isEmpty())
     {
         QMessageBox::information(this, u8"消息", u8"未选择要上传的文件", QMessageBox::Ok);
         return;
     }
-    for (const auto& item : selectedRows)
+    for (auto fileName : fileNameVec)
     {
-        qDebug() << item.row();
-        qDebug() << item.flags();
+        transferModel.addTask(TransferTask::Type::UPLOAD,
+            remoteFileSystemModel.getPath(fileName), localFileSystemModel.getPath(fileName));
     }
 }
 
 void ClientMainWindow::onActionDownloadFileTriggered()
 {
-    auto selectedRows = ui.tableView_remote->selectionModel()->selectedRows();
-    if (selectedRows.isEmpty())
+    if (!ui.tableView_remote->hasFocus())
+    {
+        QMessageBox::information(this, u8"消息", u8"请将鼠标焦点设置在远程目录窗口中", QMessageBox::Ok);
+        return;
+    }
+    auto fileNameVec = getFileNameVec(*ui.tableView_remote, remoteFileSystemModel);
+    if (fileNameVec.isEmpty())
     {
         QMessageBox::information(this, u8"消息", u8"未选择要下载的文件", QMessageBox::Ok);
         return;
     }
-    for (const auto& item : selectedRows)
+    for (auto fileName : fileNameVec)
     {
-        qDebug() << item.row();
+        transferModel.addTask(TransferTask::Type::DOWNLOAD,
+            localFileSystemModel.getPath(fileName), remoteFileSystemModel.getPath(fileName));
     }
 }
 
 void ClientMainWindow::onActionDeleteFileTriggered()
 {
-    auto selectedRows = ui.tableView_remote->selectionModel()->selectedRows();
-    if (selectedRows.isEmpty())
+    QTableView* view = nullptr;
+    FileSystemModel* model = nullptr;
+    if (ui.tableView_local->hasFocus())
+    {
+        view = ui.tableView_local;
+        model = &localFileSystemModel;
+    }
+    else if (ui.tableView_remote->hasFocus())
+    {
+        view = ui.tableView_remote;
+        model = &remoteFileSystemModel;
+    }
+    else
+    {
+        QMessageBox::information(this, u8"消息", u8"请将鼠标焦点设置在本地目录窗口或远程目录窗口中", QMessageBox::Ok);
+        return;
+    }
+    auto fileNameVec = getFileNameVec(*view, *model);
+    if (fileNameVec.isEmpty())
     {
         QMessageBox::information(this, u8"消息", u8"未选择要删除的文件", QMessageBox::Ok);
         return;
     }
-    for (const auto& item : selectedRows)
+    if (model == &localFileSystemModel)
     {
-        qDebug() << item.row();
+        for (auto fileName : fileNameVec)
+        {
+            auto path = localFileSystemModel.getPath(fileName);
+            localFileSystemModel.fileService.removeFile(path);
+        }
+        localFileSystemModel.refresh();
+    }
+    else
+    {
+        for (auto fileName : fileNameVec)
+        {
+            auto request = NetworkController::instance->newRequest<RemoveFileRequest>();
+            request->path = remoteFileSystemModel.getPath(fileName);
+            NetworkController::instance->sendRequest(request, 1);
+        }
+        remoteFileSystemModel.refresh();
     }
 }

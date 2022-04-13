@@ -95,6 +95,8 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="TransferModel.cpp" />
+    <QtMoc Include="TransferModel.h" />
     <QtRcc Include="ClientMainWindow.qrc" />
     <QtUic Include="ClientMainWindow.ui" />
     <QtMoc Include="ClientMainWindow.h" />

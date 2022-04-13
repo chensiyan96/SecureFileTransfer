@@ -16,6 +16,9 @@ public:
 	QVariant data(const QModelIndex& index, int role) const override;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
+	QString getFileName(int row) const;
+	QString getPath(QString fileName) const;
+
 private:
 	QVariant getDisplayData(int row, int column) const;
 	QVariant getTextAlignment(int column) const;
@@ -34,7 +37,7 @@ public:
 
 	void refresh();
 
-private:
+public:
 	FileService fileService;
 };
 
@@ -46,6 +49,7 @@ public:
 	explicit RemoteFileSystemModel(QObject* parent = nullptr)
 		: FileSystemModel(parent) {}
 
+	void refresh();
 	void checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response);
 
 private:
