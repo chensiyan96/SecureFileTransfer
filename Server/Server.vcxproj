@@ -95,21 +95,21 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ServerWidget.cpp" />
     <ClCompile Include="UserService.cpp" />
     <QtMoc Include="UserService.h" />
     <QtRcc Include="ServerMainWindow.qrc" />
-    <QtUic Include="ServerMainWindow.ui" />
-    <QtMoc Include="ServerMainWindow.h" />
     <ClCompile Include="NetworkController.cpp" />
     <ClCompile Include="RequestController.cpp" />
-    <ClCompile Include="ServerMainWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <None Include="Server.ico" />
+    <QtUic Include="ServerWidget.ui" />
     <ResourceCompile Include="Server.rc" />
     <QtMoc Include="NetworkController.h" />
     <QtMoc Include="StateController.h" />
     <QtMoc Include="SslServer.h" />
     <QtMoc Include="RequestController.h" />
+    <QtMoc Include="ServerWidget.h" />
     <ClInclude Include="stdafx.h" />
     <ClCompile Include="SslServer.cpp" />
     <ClCompile Include="StateController.cpp" />

@@ -10,10 +10,12 @@ class UserService : public QObject
 public:
 	explicit UserService(QObject* parent = nullptr);
 
-	RegisterResponse* handleRequest(const RegisterRequest* request);
-	LoginResponse* handleRequest(const LoginRequest* request);
-	LogoutResponse* handleRequest(const LogoutRequest* request);
-	DeleteUserResponse* handleRequest(const DeleteUserRequest* request);
+	RegisterResponse* handleRequest(QSslSocket* socket, const RegisterRequest* request);
+	LoginResponse* handleRequest(QSslSocket* socket, const LoginRequest* request);
+	LogoutResponse* handleRequest(QSslSocket* socket, const LogoutRequest* request);
+	DeleteUserResponse* handleRequest(QSslSocket* socket, const DeleteUserRequest* request);
+
+	bool isLogin(QSslSocket* socket);
 
 signals:
 	void start();
@@ -32,6 +34,7 @@ private:
 	void deleteUserByIdSlot(int id);
 
 private:
+	QMap<QSslSocket*, dao::User> loginMap;
 	QThread databaseThread;
 	QSemaphore semaphore;
 	QMutex mutex;

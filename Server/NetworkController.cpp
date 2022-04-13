@@ -38,7 +38,7 @@ void NetworkController::readRequest()
 			qDebug() << socket->bytesAvailable();
 			receiveBuffer.append(socket->read(size - 8));
 			auto request = Request::deserialize(receiveBuffer);
-			RequestController::instance->handleRequestAsync(request);
+			RequestController::instance->handleRequestAsync(socket.get(), request);
 			receiveBuffer.clear();
 		}
 	}

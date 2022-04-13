@@ -25,8 +25,8 @@ public:
 	Result copyFile(QString dst, QString src, bool force);
 	Result removeFile(QString path);
 
-	Result readFile(quint64 offset);
-	Result writeFile(quint64 offset);
+	Result readFile(QFile& file, quint64 offset, QByteArray& data);
+	Result writeFile(QFile& file, quint64 offset, const QByteArray& data);
 
 private:
 	bool isAccessible(QString path);
@@ -34,5 +34,5 @@ private:
 
 public:
 	QVector<QString> accessibleDirectories;
-	bool allDirectoriesAccessible = true;
+	bool allDirectoriesAccessible = false;
 };

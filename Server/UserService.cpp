@@ -19,7 +19,7 @@ UserService::UserService(QObject *parent)
 	emit start();
 }
 
-RegisterResponse* UserService::handleRequest(const RegisterRequest* request)
+RegisterResponse* UserService::handleRequest(QSslSocket* socket, const RegisterRequest* request)
 {
 	auto response = new RegisterResponse(request->id);
 	dao::User user;
@@ -49,18 +49,19 @@ RegisterResponse* UserService::handleRequest(const RegisterRequest* request)
 	return response;
 }
 
-LoginResponse* UserService::handleRequest(const LoginRequest* request)
+LoginResponse* UserService::handleRequest(QSslSocket* socket, const LoginRequest* request)
 {
 	auto response = new LoginResponse(request->id);
-	if (request->username.size() > 255 || request->username.size() == 0)
+	mutex.lock();
+	if (loginMap.contains(socket))
 	{
-		response->result = LoginResponse::Result::INVALID_ARGUMENT;
+		auto response = new LoginResponse(request->id);
+		response->result = LoginResponse::Result::LOGOUT_FIRST;
 		return response;
 	}
-	dao::User user;
 
 	// 访问数据库
-	mutex.lock();
+	dao::User user;
 	emit selectUserByNameSignal(request->username, &user);
 	semaphore.acquire(1);
 	if (!lastResult)
@@ -69,7 +70,6 @@ LoginResponse* UserService::handleRequest(const LoginRequest* request)
 		response->result = LoginResponse::Result::WRONG_USERNAME_OR_PASSWORD;
 		return response;
 	}
-	mutex.unlock();
 
 	// 检验密码
 	auto password = request->password;
@@ -77,22 +77,54 @@ LoginResponse* UserService::handleRequest(const LoginRequest* request)
 	password = QCryptographicHash::hash(password, QCryptographicHash::Algorithm::Sha256);
 	if (password != user.password)
 	{
+		mutex.unlock();
 		response->result = LoginResponse::Result::WRONG_USERNAME_OR_PASSWORD;
 		return response;
 	}
+
+	// 登录成功
+	loginMap.insert(socket, user);
+	mutex.unlock();
 	return response;
 }
 
-LogoutResponse* UserService::handleRequest(const LogoutRequest* request)
+LogoutResponse* UserService::handleRequest(QSslSocket* socket, const LogoutRequest* request)
 {
 	auto response = new LogoutResponse(request->id);
+	mutex.lock();
+	if (loginMap.remove(socket) == 0)
+	{
+		response->result = LogoutResponse::Result::DID_NOT_LOGIN;
+	}
+	mutex.unlock();
 	return response;
 }
 
-DeleteUserResponse* UserService::handleRequest(const DeleteUserRequest* request)
+DeleteUserResponse* UserService::handleRequest(QSslSocket* socket, const DeleteUserRequest* request)
 {
 	auto response = new DeleteUserResponse(request->id);
+	mutex.lock();
+	auto iter = loginMap.find(socket);
+	if (iter == loginMap.end())
+	{
+		response->result = DeleteUserResponse::Result::DID_NOT_LOGIN;
+	}
+	else
+	{
+		// 访问数据库
+		emit deleteUserByIdSignal(iter.value().id);
+		semaphore.acquire(1);
+	}
+	mutex.unlock();
 	return response;
+}
+
+bool UserService::isLogin(QSslSocket* socket)
+{
+	mutex.lock();
+	bool ret = loginMap.contains(socket);
+	mutex.unlock();
+	return ret;
 }
 
 void UserService::startDatabaseConnector()

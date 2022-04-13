@@ -5,6 +5,7 @@
 FileService::FileService(QObject *parent)
 	: QObject(parent)
 {
+	accessibleDirectories.append("D:/test");
 }
 
 FileService::Result FileService::listFiles(QString directory, QVector<RemoteFileInfo>& infoVec)
@@ -52,11 +53,7 @@ FileService::Result FileService::makeDirectory(QString path)
 	{
 		return FileService::Result::SUCCESS;
 	}
-	if (dir.exists())
-	{
-		return FileService::Result::FILE_EXISTS;
-	}
-	return FileService::Result::CANNOT_ACCESS;
+	return dir.exists() ? FileService::Result::FILE_EXISTS : FileService::Result::CANNOT_ACCESS;
 }
 
 FileService::Result FileService::createFile(QString path, QFile& file)
@@ -75,11 +72,7 @@ FileService::Result FileService::createFile(QString path, QFile& file)
 	{
 		return FileService::Result::SUCCESS;
 	}
-	if (file.exists())
-	{
-		return FileService::Result::FILE_EXISTS;
-	}
-	return FileService::Result::CANNOT_ACCESS;
+	return file.exists() ? FileService::Result::FILE_EXISTS : FileService::Result::CANNOT_ACCESS;
 }
 
 FileService::Result FileService::moveFile(QString dst, QString src, bool force)
@@ -92,9 +85,19 @@ FileService::Result FileService::moveFile(QString dst, QString src, bool force)
 	{
 		return FileService::Result::NO_SUCH_FILE;
 	}
-	if (!force && QFile::exists(dst))
+	if (force)
 	{
-		return FileService::Result::FILE_EXISTS;
+		if (!QFile(dst).isWritable())
+		{
+			return FileService::Result::CANNOT_WRITE;
+		}
+	}
+	else
+	{
+		if (QFile::exists(dst))
+		{
+			return FileService::Result::FILE_EXISTS;
+		}
 	}
 	if (QFile::rename(src, dst))
 	{
@@ -113,9 +116,23 @@ FileService::Result FileService::copyFile(QString dst, QString src, bool force)
 	{
 		return FileService::Result::NO_SUCH_FILE;
 	}
-	if (!force && QFile::exists(dst))
+	if (!QFile(src).isReadable())
 	{
-		return FileService::Result::FILE_EXISTS;
+		return FileService::Result::CANNOT_READ;
+	}
+	if (force)
+	{
+		if (!QFile(dst).isWritable())
+		{
+			return FileService::Result::CANNOT_WRITE;
+		}
+	}
+	else
+	{
+		if (QFile::exists(dst))
+		{
+			return FileService::Result::FILE_EXISTS;
+		}
 	}
 	QFileInfo info(src);
 	if (info.isDir())
@@ -156,6 +173,20 @@ FileService::Result FileService::removeFile(QString path)
 		}
 	}
 	return FileService::Result::FILE_OCCUPIED;
+}
+
+FileService::Result FileService::readFile(QFile& file, quint64 offset, QByteArray& data)
+{
+	file.seek(offset);
+	auto n = (int)file.read(data.data(), data.size());
+	return n == data.size() ? FileService::Result::SUCCESS : FileService::Result::CANNOT_READ;
+}
+
+FileService::Result FileService::writeFile(QFile& file, quint64 offset, const QByteArray& data)
+{
+	file.seek(offset);
+	auto n = (int)file.write(data.constData(), data.size());
+	return n == data.size() ? FileService::Result::SUCCESS : FileService::Result::CANNOT_WRITE;
 }
 
 bool FileService::isAccessible(QString path)

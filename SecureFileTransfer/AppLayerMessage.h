@@ -111,7 +111,7 @@ struct SECUREFILETRANSFER_EXPORT LoginResponse : public Response
 
 	enum class Result : quint8
 	{
-		SUCCESS, INVALID_ARGUMENT, WRONG_USERNAME_OR_PASSWORD
+		SUCCESS, INVALID_ARGUMENT, WRONG_USERNAME_OR_PASSWORD, LOGOUT_FIRST
 	} result = Result::SUCCESS;
 };
 
@@ -206,7 +206,7 @@ struct SECUREFILETRANSFER_EXPORT ListFilesResponse : public Response
 
 	enum class Result : quint8
 	{
-		SUCCESS, CANNOT_ACCESS
+		SUCCESS, INVALID_ARGUMENT, NO_SUCH_FILE, CANNOT_ACCESS
 	} result = Result::SUCCESS;
 
 	QVector<RemoteFileInfo> infoVec;
@@ -241,7 +241,7 @@ struct SECUREFILETRANSFER_EXPORT MakeDirectoryResponse : public Response
 
 	enum class Result : quint8
 	{
-		SUCCESS, CANNOT_ACCESS, FILE_EXISTS
+		SUCCESS, INVALID_ARGUMENT, CANNOT_ACCESS, FILE_EXISTS
 	} result = Result::SUCCESS;
 };
 
@@ -276,7 +276,7 @@ struct SECUREFILETRANSFER_EXPORT MoveFileResponse : public Response
 
 	enum class Result : quint8
 	{
-		SUCCESS, CANNOT_ACCESS, FILE_EXISTS, FILE_OCCUPIED, CONTENT_OCCUPIED
+		SUCCESS, INVALID_ARGUMENT, NO_SUCH_FILE, CANNOT_ACCESS, FILE_EXISTS, CANNOT_WRITE, FILE_OCCUPIED
 	} result = Result::SUCCESS;
 };
 
@@ -311,7 +311,7 @@ struct SECUREFILETRANSFER_EXPORT CopyFileResponse : public Response
 
 	enum class Result : quint8
 	{
-		SUCCESS, CANNOT_ACCESS, FILE_EXISTS, FILE_OCCUPIED, CONTENT_OCCUPIED
+		SUCCESS, INVALID_ARGUMENT, NO_SUCH_FILE, CANNOT_ACCESS, FILE_EXISTS, CANNOT_READ, CANNOT_WRITE, FILE_OCCUPIED
 	} result = Result::SUCCESS;
 };
 
@@ -345,7 +345,7 @@ struct SECUREFILETRANSFER_EXPORT UploadFileResponse : public Response
 
 	enum class Result : quint8
 	{
-		SUCCESS, CANNOT_ACCESS, FILE_EXISTS
+		SUCCESS, INVALID_ARGUMENT, CANNOT_ACCESS, CANNOT_WRITE, FILE_EXISTS
 	} result = Result::SUCCESS;
 };
 
@@ -378,7 +378,7 @@ struct SECUREFILETRANSFER_EXPORT DownloadFileResponse : public Response
 
 	enum class Result : quint8
 	{
-		SUCCESS, CANNOT_ACCESS
+		SUCCESS, INVALID_ARGUMENT, CANNOT_ACCESS, CANNOT_READ
 	} result = Result::SUCCESS;
 
 	quint64 fileSize;
@@ -413,7 +413,7 @@ struct SECUREFILETRANSFER_EXPORT RemoveFileResponse : public Response
 
 	enum class Result : quint8
 	{
-		SUCCESS, CANNOT_ACCESS, FILE_OCCUPIED, CONTENT_OCCUPIED
+		SUCCESS, INVALID_ARGUMENT, NO_SUCH_FILE, CANNOT_ACCESS, FILE_OCCUPIED
 	} result = Result::SUCCESS;
 };
 
@@ -448,7 +448,7 @@ struct SECUREFILETRANSFER_EXPORT UploadDataResponse : public Response
 
 	enum class Result : quint8
 	{
-		SUCCESS, INVALID_ARGUMENT
+		SUCCESS, INVALID_ARGUMENT, CANNOT_WRITE
 	} result = Result::SUCCESS;
 };
 
@@ -483,7 +483,7 @@ struct SECUREFILETRANSFER_EXPORT DownloadDataResponse : public Response
 
 	enum class Result : quint8
 	{
-		SUCCESS, INVALID_ARGUMENT
+		SUCCESS, INVALID_ARGUMENT, CANNOT_READ
 	} result = Result::SUCCESS;
 
 	QByteArray data;

@@ -14,31 +14,34 @@ public:
 	explicit RequestController(QObject* parent = nullptr);
 
 public:
-	QSharedPointer<Response> handleRequest(QSharedPointer<Request> request);
-	void handleRequestAsync(QSharedPointer<Request> request);
+	QSharedPointer<Response> handleRequest(QSslSocket* socket, QSharedPointer<Request> request);
+	void handleRequestAsync(QSslSocket* socket, QSharedPointer<Request> request);
 
 signals:
 	void sendResponse(QSharedPointer<Response> response);
 
 private:
-	RegisterResponse* handleRequest(const RegisterRequest* request);
-	LoginResponse* handleRequest(const LoginRequest* request);
-	LogoutResponse* handleRequest(const LogoutRequest* request);
-	DeleteUserResponse* handleRequest(const DeleteUserRequest* request);
-	ListFilesResponse* handleRequest(const ListFilesRequest* request);
-	MakeDirectoryResponse* handleRequest(const MakeDirectoryRequest* request);
-	MoveFileResponse* handleRequest(const MoveFileRequest* request);
-	CopyFileResponse* handleRequest(const CopyFileRequest* request);
-	UploadFileResponse* handleRequest(const UploadFileRequest* request);
-	DownloadFileResponse* handleRequest(const DownloadFileRequest* request);
-	RemoveFileResponse* handleRequest(const RemoveFileRequest* request);
-	UploadDataResponse* handleRequest(const UploadDataRequest* request);
-	DownloadDataResponse* handleRequest(const DownloadDataRequest* request);
-	CancelTransferResponse* handleRequest(const CancelTransferRequest* request);
+	RegisterResponse* handleRequest(QSslSocket* socket, const RegisterRequest* request);
+	LoginResponse* handleRequest(QSslSocket* socket, const LoginRequest* request);
+	LogoutResponse* handleRequest(QSslSocket* socket, const LogoutRequest* request);
+	DeleteUserResponse* handleRequest(QSslSocket* socket, const DeleteUserRequest* request);
+	ListFilesResponse* handleRequest(QSslSocket* socket, const ListFilesRequest* request);
+	MakeDirectoryResponse* handleRequest(QSslSocket* socket, const MakeDirectoryRequest* request);
+	MoveFileResponse* handleRequest(QSslSocket* socket, const MoveFileRequest* request);
+	CopyFileResponse* handleRequest(QSslSocket* socket, const CopyFileRequest* request);
+	UploadFileResponse* handleRequest(QSslSocket* socket, const UploadFileRequest* request);
+	DownloadFileResponse* handleRequest(QSslSocket* socket, const DownloadFileRequest* request);
+	RemoveFileResponse* handleRequest(QSslSocket* socket, const RemoveFileRequest* request);
+	UploadDataResponse* handleRequest(QSslSocket* socket, const UploadDataRequest* request);
+	DownloadDataResponse* handleRequest(QSslSocket* socket, const DownloadDataRequest* request);
+	CancelTransferResponse* handleRequest(QSslSocket* socket, const CancelTransferRequest* request);
 
-	void handleRequestConcurrent(QSharedPointer<Request> request);
+	void handleRequestConcurrent(QSslSocket* socket, QSharedPointer<Request> request);
+
+	bool checkPath(QString path);
 
 private:
 	UserService userService;
 	FileService fileService;
+	QMap<quint32, QFile> openedFiles;
 };
