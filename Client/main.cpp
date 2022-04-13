@@ -10,10 +10,10 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QSharedPointer<Response>>("QSharedPointer<Response>");
 
     QApplication a(argc, argv);
-    StateController::instance = new StateController;
-    NetworkController::instance = new NetworkController;
     ClientMainWindow::instance = new ClientMainWindow;
     ClientMainWindow::instance->show();
+    StateController::instance = new StateController;
+    NetworkController::instance = new NetworkController;
 
     QThread networkThread;
     NetworkController::instance->moveToThread(&networkThread);

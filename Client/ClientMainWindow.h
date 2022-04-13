@@ -17,6 +17,8 @@ public:
 signals:
     void sendRequest(QSharedPointer<Request> request, int priority);
 
+    void connectToHostTriggered();
+    void disconnectFromHostTriggered();
     void registerTriggered();
     void loginTriggered();
 

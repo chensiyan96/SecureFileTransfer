@@ -43,5 +43,6 @@ private:
 private:
 	UserService userService;
 	FileService fileService;
-	QMap<quint32, QFile> openedFiles;
+	std::map<quint32, std::unique_ptr<QFile>> openedFiles;
+	QMutex openedFilesMutex;
 };

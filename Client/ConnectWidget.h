@@ -12,7 +12,11 @@ public:
 	void connectionSucceeded();
 
 signals:
+	void canceled();
 	void connectToHost(QString host, quint16 port);
+
+protected:
+	void closeEvent(QCloseEvent* event) override;
 
 private:
 	void onPushButtonConnectClicked();

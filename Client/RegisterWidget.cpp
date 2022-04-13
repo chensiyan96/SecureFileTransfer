@@ -24,6 +24,7 @@ void RegisterWidget::onPushButtonRegisterClicked()
 		QMessageBox::critical(this, u8"错误", u8"两次输入的密码不一致", QMessageBox::Ok);
 		return;
 	}
+	ui.pushButton_register->setDisabled(true);
 	auto requset = NetworkController::instance->newRequest<RegisterRequest>();;
 	requset->username = ui.lineEdit_username->text();
 	requset->password = QCryptographicHash::hash(password1.toUtf8(), QCryptographicHash::Algorithm::Sha256);

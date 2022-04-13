@@ -2,6 +2,7 @@
 
 #include "StateController.h"
 #include "NetworkController.h"
+#include "ServerWidget.h"
 
 StateController* StateController::instance = nullptr;
 
@@ -14,6 +15,14 @@ StateController::StateController(QObject* parent)
 
     stateMachine.setInitialState(mainState);
     stateMachine.start();
+}
+
+void SetupState::onEntry(QEvent* event)
+{
+}
+
+void SetupState::onExit(QEvent* event)
+{
 }
 
 MainState::~MainState()

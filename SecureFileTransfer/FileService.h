@@ -20,11 +20,12 @@ public:
 
 	Result listFiles(QString directory, QVector<RemoteFileInfo>& infoVec);
 	Result makeDirectory(QString path);
-	Result createFile(QString path, QFile& file);
 	Result moveFile(QString dst, QString src, bool force);
 	Result copyFile(QString dst, QString src, bool force);
 	Result removeFile(QString path);
 
+	Result openReadFile(QString path, QFile& file);
+	Result createWriteFile(QString path, QFile& file);
 	Result readFile(QFile& file, quint64 offset, QByteArray& data);
 	Result writeFile(QFile& file, quint64 offset, const QByteArray& data);
 

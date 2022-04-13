@@ -19,13 +19,15 @@ ClientMainWindow::ClientMainWindow(QWidget *parent)
             auto request = QSharedPointer<Request>(NetworkController::instance->newRequest<LogoutRequest>());
             emit sendRequest(request, 0);
         });
-
     connect(ui.action_deleteUser, &QAction::triggered,
         [this]() {
             auto request = QSharedPointer<Request>(NetworkController::instance->newRequest<DeleteUserRequest>());
             emit sendRequest(request, 0);
         });
     
+    connect(ui.action_connect, &QAction::triggered, this, &ClientMainWindow::connectToHostTriggered);
+    connect(ui.action_disconnect, &QAction::triggered, this, &ClientMainWindow::disconnectFromHostTriggered);
+
     fileSystemModel.setRootPath(QDir::currentPath());
     ui.tableView_local->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui.tableView_local->setModel(&fileSystemModel);

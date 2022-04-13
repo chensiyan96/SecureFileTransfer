@@ -16,12 +16,17 @@ void ConnectWidget::connectionSucceeded()
 	QMessageBox::information(this, u8"消息", u8"建立加密连接成功", QMessageBox::Ok);
 }
 
+void ConnectWidget::closeEvent(QCloseEvent* event)
+{
+	QWidget::closeEvent(event);
+	emit canceled();
+}
+
 void ConnectWidget::onPushButtonConnectClicked()
 {
 	auto host = ui.lineEdit_host->text();
 	auto port = ui.lineEdit_port->text().toUShort();
 	ui.pushButton_connect->setDisabled(true);
-	ui.pushButton_connect->update();
 	ui.label_connectionState->setText(u8"正在连接");
 	emit connectToHost(host, port);
 }

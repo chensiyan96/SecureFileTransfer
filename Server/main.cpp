@@ -10,8 +10,8 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QSharedPointer<Response>>("QSharedPointer<Response>");
 
     QApplication a(argc, argv);
-    QScopedPointer<ServerWidget> w(new ServerWidget);
-    w->show();
+    ServerWidget::instance = new ServerWidget;
+    ServerWidget::instance->show();
     StateController::instance = new StateController;
     RequestController::instance = new RequestController;
 

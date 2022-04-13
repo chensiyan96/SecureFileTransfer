@@ -9,45 +9,67 @@ StateController* StateController::instance = nullptr;
 StateController::StateController(QObject* parent)
 	: QObject(parent)
 {
-	connectState = new ConnectState(&stateMachine);
+	disconnectedState = new DisconnectedState(&stateMachine);
+	connectingState = new ConnectingState(&stateMachine);
 	registerState = new RegisterState(&stateMachine);
 	loginState = new LoginState(&stateMachine);
 	mainState = new MainState(&stateMachine);
-
-	stateMachine.addState(connectState);
+	
+	stateMachine.addState(disconnectedState);
+	stateMachine.addState(connectingState);
 	stateMachine.addState(registerState);
 	stateMachine.addState(loginState);
 	stateMachine.addState(mainState);
 
-	connectState->addTransition(connectState, &ConnectState::connectedToServer, loginState);
+	disconnectedState->addTransition(ClientMainWindow::instance, &ClientMainWindow::connectToHostTriggered, connectingState);
+	connectingState->addTransition(connectingState, &ConnectingState::canceled, disconnectedState);
+	connectingState->addTransition(connectingState, &ConnectingState::connectedToServer, loginState);
 	registerState->addTransition(registerState, &RegisterState::registerFinished, loginState);
 	loginState->addTransition(loginState, &LoginState::loginFinished, mainState);
 
-	stateMachine.setInitialState(connectState);
+	stateMachine.setInitialState(connectingState);
 	stateMachine.start();
 }
 
-void ConnectState::onEntry(QEvent* event)
+void DisconnectedState::onEntry(QEvent* event)
+{
+}
+
+void DisconnectedState::onExit(QEvent* event)
+{
+}
+
+void ConnectingState::onEntry(QEvent* event)
 {
 	auto connectWidget = new ConnectWidget;
 	this->connectWidget.reset(connectWidget);
 	connectWidget->setAttribute(Qt::WA_QuitOnClose, false);
 	connectWidget->show();
 	connect(connectWidget, &ConnectWidget::connectToHost, NetworkController::instance, &NetworkController::connectToHost);
-	connect(NetworkController::instance, &NetworkController::connectionSucceeded, this, &ConnectState::connectionSucceeded);
-	connect(this, &ConnectState::connectedToServer, NetworkController::instance, &NetworkController::start);
+	//connect(connectWidget, &ConnectWidget::canceled, this, &ConnectingState::canceled);
+	connect(NetworkController::instance, &NetworkController::connectionSucceeded, this, &ConnectingState::connectionSucceeded);
+	connect(this, &ConnectingState::connectedToServer, NetworkController::instance, &NetworkController::start);
 }
 
-void ConnectState::onExit(QEvent* event)
+void ConnectingState::onExit(QEvent* event)
 {
-	connectWidget.reset(nullptr);
 	NetworkController::instance->disconnect(this);
+	connectWidget->disconnect(this);
+	connectWidget.reset(nullptr);
 }
 
-void ConnectState::connectionSucceeded()
+void ConnectingState::connectionSucceeded()
 {
 	connectWidget->connectionSucceeded();
 	emit connectedToServer();
+}
+
+void LogoutState::onEntry(QEvent* event)
+{
+}
+
+void LogoutState::onExit(QEvent* event)
+{
 }
 
 void RegisterState::onEntry(QEvent* event)
@@ -114,10 +136,7 @@ void LoginState::checkResponse(QSharedPointer<Request> request, QSharedPointer<R
 
 void MainState::onEntry(QEvent* event)
 {
-	connect(ClientMainWindow::instance, &ClientMainWindow::sendRequest,
-		[](QSharedPointer<Request> request, int priority) {
-			NetworkController::instance->sendRequest(request, priority);
-		});
+	connect(ClientMainWindow::instance, &ClientMainWindow::sendRequest, this, &MainState::sendRequest);
 	auto request = NetworkController::instance->newRequest<ListFilesRequest>();
 	request->directory = "D:/SecureFileTransfer";
 	NetworkController::instance->sendRequest(request, 0);
@@ -125,5 +144,11 @@ void MainState::onEntry(QEvent* event)
 
 void MainState::onExit(QEvent* event)
 {
+	ClientMainWindow::instance->disconnect(this);
 	NetworkController::instance->disconnect(this);
+}
+
+void MainState::sendRequest(QSharedPointer<Request> request, int priority)
+{
+	NetworkController::instance->sendRequest(request, priority);
 }

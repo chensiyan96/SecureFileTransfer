@@ -99,7 +99,6 @@
   <ItemGroup>
     <ClInclude Include="AppLayerMessage.h" />
     <QtMoc Include="FileService.h" />
-    <ClInclude Include="RemoteFileInfo.h" />
     <ClInclude Include="securefiletransfer_global.h" />
     <QtMoc Include="SecureFileTransfer.h" />
     <ClCompile Include="AppLayerMessage.cpp" />

@@ -226,7 +226,20 @@ UploadFileResponse* RequestController::handleRequest(QSslSocket* socket, const U
 	}
 	else
 	{
-		
+		std::unique_ptr<QFile> filePtr;
+		auto result = fileService.createWriteFile(request->dst, *filePtr);
+		switch (result)
+		{
+		case FileService::Result::CANNOT_ACCESS:
+			response->result = UploadFileResponse::Result::CANNOT_ACCESS;
+			return response;
+		case FileService::Result::FILE_EXISTS:
+			response->result = UploadFileResponse::Result::FILE_EXISTS;
+			return response;
+		}
+		openedFilesMutex.lock();
+		openedFiles.emplace(request->id, std::move(filePtr));
+		openedFilesMutex.unlock();
 	}
 	return response;
 }
@@ -244,7 +257,20 @@ DownloadFileResponse* RequestController::handleRequest(QSslSocket* socket, const
 	}
 	else
 	{
-
+		std::unique_ptr<QFile> filePtr;
+		auto result = fileService.openReadFile(request->src, *filePtr);
+		switch (result)
+		{
+		case FileService::Result::CANNOT_ACCESS:
+			response->result = DownloadFileResponse::Result::CANNOT_ACCESS;
+			return response;
+		case FileService::Result::CANNOT_READ:
+			response->result = DownloadFileResponse::Result::CANNOT_READ;
+			return response;
+		}
+		openedFilesMutex.lock();
+		openedFiles.emplace(request->id, std::move(filePtr));
+		openedFilesMutex.unlock();
 	}
 	return response;
 }
@@ -286,6 +312,23 @@ UploadDataResponse* RequestController::handleRequest(QSslSocket* socket, const U
 		return nullptr;
 	}
 	auto response = new UploadDataResponse(request->id);
+	openedFilesMutex.lock();
+	auto iter = openedFiles.find(request->parentId);
+	if (iter == openedFiles.end())
+	{
+		response->result = UploadDataResponse::Result::INVALID_ARGUMENT;
+		openedFilesMutex.unlock();
+		return response;
+	}
+	auto& file = *iter->second;
+	openedFilesMutex.unlock();
+	auto result = fileService.writeFile(file, request->offset, request->data);
+	switch (result)
+	{
+	case FileService::Result::CANNOT_WRITE:
+		response->result = UploadDataResponse::Result::CANNOT_WRITE;
+		break;
+	}
 	return response;
 }
 
@@ -296,6 +339,23 @@ DownloadDataResponse* RequestController::handleRequest(QSslSocket* socket, const
 		return nullptr;
 	}
 	auto response = new DownloadDataResponse(request->id);
+	openedFilesMutex.lock();
+	auto iter = openedFiles.find(request->parentId);
+	if (iter == openedFiles.end())
+	{
+		response->result = DownloadDataResponse::Result::INVALID_ARGUMENT;
+		openedFilesMutex.unlock();
+		return response;
+	}
+	auto& file = *iter->second;
+	openedFilesMutex.unlock();
+	auto result = fileService.readFile(file, request->offset, response->data);
+	switch (result)
+	{
+	case FileService::Result::CANNOT_READ:
+		response->result = DownloadDataResponse::Result::CANNOT_READ;
+		break;
+	}
 	return response;
 }
 

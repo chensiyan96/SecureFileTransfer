@@ -56,25 +56,6 @@ FileService::Result FileService::makeDirectory(QString path)
 	return dir.exists() ? FileService::Result::FILE_EXISTS : FileService::Result::CANNOT_ACCESS;
 }
 
-FileService::Result FileService::createFile(QString path, QFile& file)
-{
-	if (!isAccessible(path))
-	{
-		return FileService::Result::CANNOT_ACCESS;
-	}
-	file.setFileName(path);
-	if (file.exists())
-	{
-		return FileService::Result::FILE_EXISTS;
-	}
-	file.open(QIODevice::WriteOnly);
-	if (file.isOpen())
-	{
-		return FileService::Result::SUCCESS;
-	}
-	return file.exists() ? FileService::Result::FILE_EXISTS : FileService::Result::CANNOT_ACCESS;
-}
-
 FileService::Result FileService::moveFile(QString dst, QString src, bool force)
 {
 	if (!isAccessible(dst) || !isAccessible(src))
@@ -173,6 +154,40 @@ FileService::Result FileService::removeFile(QString path)
 		}
 	}
 	return FileService::Result::FILE_OCCUPIED;
+}
+
+FileService::Result FileService::openReadFile(QString path, QFile& file)
+{
+	if (!isAccessible(path))
+	{
+		return FileService::Result::CANNOT_ACCESS;
+	}
+	file.setFileName(path);
+	file.open(QIODevice::ReadOnly);
+	if (file.isOpen())
+	{
+		return FileService::Result::SUCCESS;
+	}
+	return file.exists() ? FileService::Result::CANNOT_READ : FileService::Result::CANNOT_ACCESS;
+}
+
+FileService::Result FileService::createWriteFile(QString path, QFile& file)
+{
+	if (!isAccessible(path))
+	{
+		return FileService::Result::CANNOT_ACCESS;
+	}
+	file.setFileName(path);
+	if (file.exists())
+	{
+		return FileService::Result::FILE_EXISTS;
+	}
+	file.open(QIODevice::WriteOnly);
+	if (file.isOpen())
+	{
+		return FileService::Result::SUCCESS;
+	}
+	return file.exists() ? FileService::Result::FILE_EXISTS : FileService::Result::CANNOT_ACCESS;
 }
 
 FileService::Result FileService::readFile(QFile& file, quint64 offset, QByteArray& data)

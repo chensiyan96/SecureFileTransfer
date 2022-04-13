@@ -18,6 +18,25 @@ private:
 	class MainState* mainState = nullptr;
 };
 
+class SetupState : public QState
+{
+	Q_OBJECT
+
+public:
+	explicit SetupState(QState* parent = nullptr) : QState(parent) {}
+
+signals:
+	void setupFinished(QSslCertificate* certificate, QSslKey* privateKey);
+
+protected:
+	void onEntry(QEvent* event) override;
+	void onExit(QEvent* event) override;
+
+private:
+	QSslCertificate certificate;
+	QSslKey privateKey;
+};
+
 class MainState : public QState
 {
 	Q_OBJECT
