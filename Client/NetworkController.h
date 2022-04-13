@@ -25,7 +25,7 @@ public:
 
 signals:
 	void requestAdded();
-	void connectionSucceeded();
+	void succeeded();
 	void receivedResponse(QSharedPointer<Request> request, QSharedPointer<Response> response);
 
 private:

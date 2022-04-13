@@ -17,10 +17,11 @@ public:
 signals:
     void sendRequest(QSharedPointer<Request> request, int priority);
 
-    void connectToHostTriggered();
-    void disconnectFromHostTriggered();
     void registerTriggered();
     void loginTriggered();
+
+    void connectToHostTriggered();
+    void disconnectFromHostTriggered();
 
 private:
     Ui::ClientMainWindowClass ui;

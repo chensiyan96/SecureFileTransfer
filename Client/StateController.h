@@ -18,6 +18,7 @@ private:
 	QStateMachine stateMachine;
 	class DisconnectedState* disconnectedState = nullptr;
 	class ConnectingState* connectingState = nullptr;
+	class LogoutState* logoutState = nullptr;
 	class RegisterState* registerState = nullptr;
 	class LoginState* loginState = nullptr;
 	class MainState* mainState = nullptr;
@@ -47,14 +48,15 @@ public:
 
 signals:
 	void canceled();
-	void connectedToServer();
+	void finished();
 
 protected:
 	void onEntry(QEvent* event) override;
 	void onExit(QEvent* event) override;
 	
 private:
-	void connectionSucceeded();
+	void onWidgetDestroyed();
+	void succeeded();
 
 private:
 	QScopedPointer<ConnectWidget> connectWidget;
@@ -84,13 +86,15 @@ public:
 	explicit RegisterState(QState* parent = nullptr) : QState(parent) {}
 
 signals:
-	void registerFinished();
+	void canceled();
+	void finished();
 
 protected:
 	void onEntry(QEvent* event) override;
 	void onExit(QEvent* event) override;
 
 private:
+	void onWidgetDestroyed();
 	void checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response);
 
 private:
@@ -105,13 +109,15 @@ public:
 	explicit LoginState(QState* parent = nullptr) : QState(parent) {}
 
 signals:
-	void loginFinished();
+	void canceled();
+	void finished();
 
 protected:
 	void onEntry(QEvent* event) override;
 	void onExit(QEvent* event) override;
 
 private:
+	void onWidgetDestroyed();
 	void checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response);
 
 private:
@@ -126,12 +132,12 @@ public:
 	explicit MainState(QState* parent = nullptr) : QState(parent) {}
 
 signals:
-	void newSocket(QSslSocket* socket);
-
-private:
-	void sendRequest(QSharedPointer<Request> request, int priority);
+	void logout();
 
 protected:
 	void onEntry(QEvent* event) override;
 	void onExit(QEvent* event) override;
+
+private:
+	void checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response);
 };

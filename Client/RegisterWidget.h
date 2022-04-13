@@ -11,10 +11,8 @@ class RegisterWidget : public QWidget
 public:
 	explicit RegisterWidget(QWidget *parent = nullptr);
 
-	void registerSucceeded();
-
-signals:
-	void sendRequest(QSharedPointer<Request> request, int priority);
+	void succeeded();
+	void failed(QString message);
 
 private:
 	void onPushButtonRegisterClicked();

@@ -15,7 +15,7 @@ void NetworkController::connectToHost(QString host, quint16 port)
 {
 	this->socket.reset(new QSslSocket);
 	socket->setPeerVerifyMode(QSslSocket::QueryPeer);
-	connect(socket.get(), &QSslSocket::encrypted, this, &NetworkController::connectionSucceeded);
+	connect(socket.get(), &QSslSocket::encrypted, this, &NetworkController::succeeded);
 	socket->connectToHostEncrypted(host, port);
 }
 

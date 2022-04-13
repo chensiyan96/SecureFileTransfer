@@ -10,10 +10,16 @@ ConnectWidget::ConnectWidget(QWidget *parent)
 	connect(ui.pushButton_connect, &QPushButton::clicked, this, &ConnectWidget::onPushButtonConnectClicked);
 }
 
-void ConnectWidget::connectionSucceeded()
+void ConnectWidget::succeeded()
 {
 	ui.label_connectionState->setText(u8"连接成功");
 	QMessageBox::information(this, u8"消息", u8"建立加密连接成功", QMessageBox::Ok);
+}
+
+void ConnectWidget::failed(QString message)
+{
+	QMessageBox::critical(this, u8"错误", message, QMessageBox::Ok);
+	ui.pushButton_connect->setDisabled(false);
 }
 
 void ConnectWidget::closeEvent(QCloseEvent* event)

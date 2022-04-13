@@ -17,12 +17,16 @@ ClientMainWindow::ClientMainWindow(QWidget *parent)
     connect(ui.action_logout, &QAction::triggered,
         [this]() {
             auto request = QSharedPointer<Request>(NetworkController::instance->newRequest<LogoutRequest>());
-            emit sendRequest(request, 0);
+            NetworkController::instance->sendRequest(request, 0);
         });
     connect(ui.action_deleteUser, &QAction::triggered,
         [this]() {
-            auto request = QSharedPointer<Request>(NetworkController::instance->newRequest<DeleteUserRequest>());
-            emit sendRequest(request, 0);
+            if (QMessageBox::information(this, u8"警告", u8"此操作不可逆，真的要删除账号吗？",
+                QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Ok)
+            {
+                auto request = QSharedPointer<Request>(NetworkController::instance->newRequest<DeleteUserRequest>());
+                NetworkController::instance->sendRequest(request, 0);
+            }
         });
     
     connect(ui.action_connect, &QAction::triggered, this, &ClientMainWindow::connectToHostTriggered);

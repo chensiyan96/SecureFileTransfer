@@ -10,9 +10,15 @@ RegisterWidget::RegisterWidget(QWidget *parent)
 	connect(ui.pushButton_register, &QPushButton::clicked, this, &RegisterWidget::onPushButtonRegisterClicked);
 }
 
-void RegisterWidget::registerSucceeded()
+void RegisterWidget::succeeded()
 {
 	QMessageBox::information(this, u8"消息", u8"注册成功", QMessageBox::Ok);
+}
+
+void RegisterWidget::failed(QString message)
+{
+	QMessageBox::critical(this, u8"错误", message, QMessageBox::Ok);
+	ui.pushButton_register->setDisabled(false);
 }
 
 void RegisterWidget::onPushButtonRegisterClicked()
@@ -25,8 +31,8 @@ void RegisterWidget::onPushButtonRegisterClicked()
 		return;
 	}
 	ui.pushButton_register->setDisabled(true);
-	auto requset = NetworkController::instance->newRequest<RegisterRequest>();;
-	requset->username = ui.lineEdit_username->text();
-	requset->password = QCryptographicHash::hash(password1.toUtf8(), QCryptographicHash::Algorithm::Sha256);
-	emit sendRequest(requset, 0);
+	auto request = NetworkController::instance->newRequest<RegisterRequest>();;
+	request->username = ui.lineEdit_username->text();
+	request->password = QCryptographicHash::hash(password1.toUtf8(), QCryptographicHash::Algorithm::Sha256);
+	NetworkController::instance->sendRequest(request, 0);
 }

@@ -9,7 +9,8 @@ class ConnectWidget : public QWidget
 public:
 	explicit ConnectWidget(QWidget *parent = nullptr);
 
-	void connectionSucceeded();
+	void succeeded();
+	void failed(QString message);
 
 signals:
 	void canceled();

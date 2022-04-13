@@ -11,10 +11,8 @@ class LoginWidget : public QWidget
 public:
 	explicit LoginWidget(QWidget* parent = nullptr);
 
-	void loginSucceeded();
-
-signals:
-	void sendRequest(QSharedPointer<Request> request, int priority);
+	void succeeded();
+	void failed(QString message);
 
 private:
 	void onPushButtonLoginClicked();
