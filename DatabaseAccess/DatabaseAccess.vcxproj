@@ -98,7 +98,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="User.cpp" />
-    <ClInclude Include="..\SecureFileTransfer\RemoteFileInfo.h" />
     <ClInclude Include="databaseaccess_global.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="DatabaseAccess.h" />

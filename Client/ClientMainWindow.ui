@@ -78,8 +78,6 @@
     <addaction name="separator"/>
     <addaction name="action_uploadFile"/>
     <addaction name="action_downloadFile"/>
-    <addaction name="action_moveFile"/>
-    <addaction name="action_copyFile"/>
     <addaction name="action_deleteFile"/>
     <addaction name="separator"/>
     <addaction name="action_quit"/>

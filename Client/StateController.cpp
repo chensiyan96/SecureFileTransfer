@@ -25,13 +25,13 @@ StateController::StateController(QObject* parent)
 
 	disconnectedState->addTransition(ClientMainWindow::instance, &ClientMainWindow::connectToHostTriggered, connectingState);
 	connectingState->addTransition(connectingState, &ConnectingState::canceled, disconnectedState);
-	connectingState->addTransition(connectingState, &ConnectingState::finished, loginState);
+	connectingState->addTransition(connectingState, &ConnectingState::connectFinished, loginState);
 	logoutState->addTransition(ClientMainWindow::instance, &ClientMainWindow::registerTriggered, registerState);
 	logoutState->addTransition(ClientMainWindow::instance, &ClientMainWindow::loginTriggered, loginState);
 	registerState->addTransition(registerState, &RegisterState::canceled, logoutState);
-	registerState->addTransition(registerState, &RegisterState::finished, loginState);
+	registerState->addTransition(registerState, &RegisterState::registerFinished, loginState);
 	loginState->addTransition(loginState, &LoginState::canceled, logoutState);
-	loginState->addTransition(loginState, &LoginState::finished, mainState);
+	loginState->addTransition(loginState, &LoginState::loginFinished, mainState);
 	mainState->addTransition(mainState, &MainState::logout, logoutState);
 
 	stateMachine.setInitialState(connectingState);
@@ -56,14 +56,17 @@ void ConnectingState::onEntry(QEvent* event)
 	connect(connectWidget, &ConnectWidget::connectToHost, NetworkController::instance, &NetworkController::connectToHost);
 	connect(connectWidget, &ConnectWidget::destroyed, this, &ConnectingState::onWidgetDestroyed);
 	connect(NetworkController::instance, &NetworkController::succeeded, this, &ConnectingState::succeeded);
-	connect(this, &ConnectingState::finished, NetworkController::instance, &NetworkController::start);
+	connect(this, &ConnectingState::connectFinished, NetworkController::instance, &NetworkController::start);
 }
 
 void ConnectingState::onExit(QEvent* event)
 {
 	NetworkController::instance->disconnect(this);
-	connectWidget->disconnect(this);
-	connectWidget.reset(nullptr);
+	if (!connectWidget.isNull())
+	{
+		connectWidget->disconnect(this);
+		connectWidget.reset(nullptr);
+	}
 }
 
 void ConnectingState::onWidgetDestroyed()
@@ -75,7 +78,7 @@ void ConnectingState::onWidgetDestroyed()
 void ConnectingState::succeeded()
 {
 	connectWidget->succeeded();
-	emit finished();
+	emit connectFinished();
 }
 
 void LogoutState::onEntry(QEvent* event)
@@ -100,8 +103,11 @@ void RegisterState::onEntry(QEvent* event)
 void RegisterState::onExit(QEvent* event)
 {
 	NetworkController::instance->disconnect(this);
-	registerWidget->disconnect(this);
-	registerWidget.reset(nullptr);
+	if (!registerWidget.isNull())
+	{
+		registerWidget->disconnect(this);
+		registerWidget.reset(nullptr);
+	}
 }
 
 void RegisterState::onWidgetDestroyed()
@@ -118,7 +124,7 @@ void RegisterState::checkResponse(QSharedPointer<Request> request, QSharedPointe
 		{
 		case RegisterResponse::Result::SUCCESS:
 			registerWidget->succeeded();
-			emit finished();
+			emit registerFinished();
 			break;
 		case RegisterResponse::Result::INVALID_ARGUMENT:
 			registerWidget->failed(u8"参数无效");
@@ -144,8 +150,11 @@ void LoginState::onEntry(QEvent* event)
 void LoginState::onExit(QEvent* event)
 {
 	NetworkController::instance->disconnect(this);
-	loginWidget->disconnect(this);
-	loginWidget.reset(nullptr);
+	if (!loginWidget.isNull())
+	{
+		loginWidget->disconnect(this);
+		loginWidget.reset(nullptr);
+	}
 }
 
 void LoginState::onWidgetDestroyed()
@@ -162,7 +171,7 @@ void LoginState::checkResponse(QSharedPointer<Request> request, QSharedPointer<R
 		{
 		case LoginResponse::Result::SUCCESS:
 			loginWidget->succeeded();
-			emit finished();
+			emit loginFinished();
 			break;
 		case LoginResponse::Result::INVALID_ARGUMENT:
 			loginWidget->failed(u8"参数无效");
@@ -182,14 +191,16 @@ void MainState::onEntry(QEvent* event)
 	connect(NetworkController::instance, &NetworkController::receivedResponse, this, &MainState::checkResponse);
 
 	auto request = NetworkController::instance->newRequest<ListFilesRequest>();
-	request->directory = "D:/SecureFileTransfer";
+	request->directory = "D:/";
 	NetworkController::instance->sendRequest(request, 0);
+	ClientMainWindow::instance->onMainStateEntry();
 }
 
 void MainState::onExit(QEvent* event)
 {
 	ClientMainWindow::instance->disconnect(this);
 	NetworkController::instance->disconnect(this);
+	ClientMainWindow::instance->onMainStateExit();
 }
 
 void MainState::checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response)

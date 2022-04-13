@@ -48,7 +48,7 @@ public:
 
 signals:
 	void canceled();
-	void finished();
+	void connectFinished();
 
 protected:
 	void onEntry(QEvent* event) override;
@@ -87,7 +87,7 @@ public:
 
 signals:
 	void canceled();
-	void finished();
+	void registerFinished();
 
 protected:
 	void onEntry(QEvent* event) override;
@@ -110,7 +110,7 @@ public:
 
 signals:
 	void canceled();
-	void finished();
+	void loginFinished();
 
 protected:
 	void onEntry(QEvent* event) override;

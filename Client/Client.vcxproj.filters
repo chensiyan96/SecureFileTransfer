@@ -70,6 +70,9 @@
     <ClCompile Include="RegisterWidget.cpp">
       <Filter>Source Files\view</Filter>
     </ClCompile>
+    <ClCompile Include="FileSystemModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="StateController.h">
@@ -89,6 +92,9 @@
     </QtMoc>
     <QtMoc Include="ClientMainWindow.h">
       <Filter>Header Files\view</Filter>
+    </QtMoc>
+    <QtMoc Include="FileSystemModel.h">
+      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

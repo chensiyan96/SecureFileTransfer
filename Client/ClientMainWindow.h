@@ -4,6 +4,8 @@
 
 #include "../SecureFileTransfer/AppLayerMessage.h"
 
+#include "FileSystemModel.h"
+
 class ClientMainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -13,6 +15,9 @@ public:
 
 public:
     explicit ClientMainWindow(QWidget *parent = nullptr);
+
+    void onMainStateEntry();
+    void onMainStateExit();
 
 signals:
     void sendRequest(QSharedPointer<Request> request, int priority);
@@ -24,6 +29,12 @@ signals:
     void disconnectFromHostTriggered();
 
 private:
+    void onActionUploadFileTriggered();
+    void onActionDownloadFileTriggered();
+    void onActionDeleteFileTriggered();
+
+private:
     Ui::ClientMainWindowClass ui;
-    QFileSystemModel fileSystemModel;
+    LocalFileSystemModel localFileSystemModel;
+    RemoteFileSystemModel remoteFileSystemModel;
 };
