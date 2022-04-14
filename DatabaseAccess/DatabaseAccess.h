@@ -4,10 +4,12 @@
 
 #include "User.h"
 
-class DATABASEACCESS_EXPORT DatabaseAccess
+struct DATABASEACCESS_EXPORT DatabaseAccess
 {
-public:
+    static DatabaseAccess instance;
     DatabaseAccess();
+    bool connectToDatabase();
+    bool init(QString path);
+    QString path;
+    QMutex mutex;
 };
-
-bool DATABASEACCESS_EXPORT connectToDatabase();

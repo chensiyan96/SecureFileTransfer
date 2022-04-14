@@ -13,8 +13,13 @@ public:
 public:
 	explicit StateController(QObject* parent = nullptr);
 
+public:
+	QSslCertificate certificate;
+	QSslKey privateKey;
+
 private:
 	QStateMachine stateMachine;
+	class SetupState* setupState = nullptr;
 	class MainState* mainState = nullptr;
 };
 
@@ -26,15 +31,20 @@ public:
 	explicit SetupState(QState* parent = nullptr) : QState(parent) {}
 
 signals:
-	void setupFinished(QSslCertificate* certificate, QSslKey* privateKey);
+	void setupFinished();
+
+private:
+	void setCertificate(QString path);
+	void setPrivateKey(QString path);
+	void setDatabase(QString path);
+	void setup();
 
 protected:
 	void onEntry(QEvent* event) override;
 	void onExit(QEvent* event) override;
 
 private:
-	QSslCertificate certificate;
-	QSslKey privateKey;
+	bool databaseInit = false;
 };
 
 class MainState : public QState

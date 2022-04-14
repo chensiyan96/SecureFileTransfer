@@ -15,13 +15,6 @@ StateController::StateController(QObject* parent)
 	registerState = new RegisterState(&stateMachine);
 	loginState = new LoginState(&stateMachine);
 	mainState = new MainState(&stateMachine);
-	
-	stateMachine.addState(disconnectedState);
-	stateMachine.addState(connectingState);
-	stateMachine.addState(logoutState);
-	stateMachine.addState(registerState);
-	stateMachine.addState(loginState);
-	stateMachine.addState(mainState);
 
 	disconnectedState->addTransition(ClientMainWindow::instance, &ClientMainWindow::connectToHostTriggered, connectingState);
 	connectingState->addTransition(connectingState, &ConnectingState::canceled, disconnectedState);

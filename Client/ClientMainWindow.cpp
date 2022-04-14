@@ -56,6 +56,8 @@ ClientMainWindow::ClientMainWindow(QWidget *parent)
 
 void ClientMainWindow::onMainStateEntry()
 {
+    ui.action_register->setDisabled(true);
+    ui.action_login->setDisabled(true);
     connect(NetworkController::instance, &NetworkController::receivedResponse, &remoteFileSystemModel, &RemoteFileSystemModel::checkResponse);
     connect(&transferModel, &TransferModel::taskFinished, &localFileSystemModel, &LocalFileSystemModel::refresh);
     connect(&transferModel, &TransferModel::taskFinished, &remoteFileSystemModel, &RemoteFileSystemModel::refresh);
@@ -65,6 +67,8 @@ void ClientMainWindow::onMainStateEntry()
 
 void ClientMainWindow::onMainStateExit()
 {
+    ui.action_register->setDisabled(false);
+    ui.action_login->setDisabled(false);
     NetworkController::instance->disconnect(&remoteFileSystemModel);
     transferModel.onMainStateExit();
 }

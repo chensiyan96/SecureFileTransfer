@@ -17,6 +17,4 @@ protected:
 
 private:
 	std::unordered_set<std::unique_ptr<NetworkController>> allNetworkControllers;
-	QSslCertificate certificate;
-	QSslKey privateKey;
 };

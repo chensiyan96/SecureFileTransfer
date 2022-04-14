@@ -12,15 +12,28 @@ public:
 public:
 	explicit ServerWidget(QWidget* parent = nullptr);
 
+	quint16 getPort() const;
+
+	void onSetupStateEntry();
+	void onSetupStateExit();
+	void onMainStateEntry();
+	void onMainStateExit();
+
+	void outputLog(const QString& log);
+
 signals:
 	void setCertificate(QString path);
 	void setPrivateKey(QString path);
 	void setDatabase(QString path);
-	void setLogFile(QString path);
+
+	void startServer();
+	void stopServer();
 
 private:
 	void selectFile(QLineEdit* lineEdit);
+	void setLogFile(QString path);
 
 private:
 	Ui::ServerWidget ui;
+	QFile logFile;
 };

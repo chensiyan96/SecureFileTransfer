@@ -46,6 +46,8 @@ RegisterResponse* UserService::handleRequest(QSslSocket* socket, const RegisterR
 		return response;
 	}
 	mutex.unlock();
+
+	qInfo() << QString(u8"用户 %1 注册了").arg(user.username);
 	return response;
 }
 
@@ -85,6 +87,7 @@ LoginResponse* UserService::handleRequest(QSslSocket* socket, const LoginRequest
 	// 登录成功
 	loginMap.insert(socket, user);
 	mutex.unlock();
+	qInfo() << QString(u8"用户 %1 登录了").arg(user.username);
 	return response;
 }
 
@@ -129,7 +132,8 @@ bool UserService::isLogin(QSslSocket* socket)
 
 void UserService::startDatabaseConnector()
 {
-	connectToDatabase();
+	QThread::sleep(1);
+	DatabaseAccess::instance.connectToDatabase();
 }
 
 void UserService::insertUserSlot(dao::User* user)

@@ -6,7 +6,7 @@
     auto error = query.lastError(); \
     if (error.isValid()) \
     { \
-        qInfo() << query.lastQuery() << error; \
+        qWarning() << query.lastQuery() << error; \
         return false; \
     }
 
