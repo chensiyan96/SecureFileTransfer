@@ -19,6 +19,7 @@ public:
 	}
 
 	void connectToHost(QString host, quint16 port);
+	void disconnectFromHost();
 
 	void start(); // slot
 	void sendRequest(QSharedPointer<Request> request, int priority);
@@ -27,10 +28,12 @@ signals:
 	void requestAdded();
 	void succeeded();
 	void receivedResponse(QSharedPointer<Request> request, QSharedPointer<Response> response);
+	void disconnected();
 
 private:
 	void writeRequest();
 	void readResponse();
+	void cleanUp();
 
 private:
 	QTimer timer;

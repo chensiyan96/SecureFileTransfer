@@ -27,6 +27,7 @@ StateController::StateController(QObject* parent)
     mainState = new MainState(&stateMachine);
 
     setupState->addTransition(setupState, &SetupState::setupFinished, mainState);
+    mainState->addTransition(mainState, &MainState::stopFinished, mainState);
 
     stateMachine.setInitialState(setupState);
     stateMachine.start();

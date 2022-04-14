@@ -264,7 +264,14 @@ void TransferModel::UploadWorker::checkResponse(QSharedPointer<Request> request,
 		auto& record = requestMap[uploadDataRequest->id];
 		assert(record.file != nullptr);
 		master->beginResetModel();
-		record.iter->state = TransferTask::State::TRANSFER;
+		if (uploadDataResponse->result == UploadFileResponse::Result::SUCCESS)
+		{
+			record.iter->state = TransferTask::State::TRANSFER;
+		}
+		else
+		{
+			record.iter->state = TransferTask::State::FAILED;
+		}
 		master->endResetModel();
 		doTask();
 	}
@@ -347,8 +354,15 @@ void TransferModel::DownloadWorker::checkResponse(QSharedPointer<Request> reques
 		auto& record = requestMap[downloadDataRequest->id];
 		assert(record.file != nullptr);
 		master->beginResetModel();
-		record.iter->state = TransferTask::State::TRANSFER;
-		record.iter->totalSize = downloadDataResponse->size;
+		if (downloadDataResponse->result == DownloadFileResponse::Result::SUCCESS)
+		{
+			record.iter->state = TransferTask::State::TRANSFER;
+			record.iter->totalSize = downloadDataResponse->size;
+		}
+		else
+		{
+			record.iter->state = TransferTask::State::FAILED;
+		}
 		master->endResetModel();
 		doTask();
 	}

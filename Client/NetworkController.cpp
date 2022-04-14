@@ -16,7 +16,17 @@ void NetworkController::connectToHost(QString host, quint16 port)
 	this->socket.reset(new QSslSocket);
 	socket->setPeerVerifyMode(QSslSocket::QueryPeer);
 	connect(socket.get(), &QSslSocket::encrypted, this, &NetworkController::succeeded);
+	connect(socket.get(), &QSslSocket::disconnected, this, &NetworkController::disconnected);
+	connect(socket.get(), &QSslSocket::disconnected, this, &NetworkController::cleanUp);
 	socket->connectToHostEncrypted(host, port);
+}
+
+void NetworkController::disconnectFromHost()
+{
+	socket->disconnectFromHost();
+	socket->waitForDisconnected();
+	socket.reset(nullptr);
+	QMessageBox::information(nullptr, u8"消息", u8"连接已断开", QMessageBox::Ok);
 }
 
 void NetworkController::start()
@@ -30,6 +40,10 @@ void NetworkController::start()
 
 void NetworkController::sendRequest(QSharedPointer<Request> request, int priority)
 {
+	if (socket.isNull())
+	{
+		return;
+	}
 	sendQueueMutex.lock();
 	sendQueue[priority].push_back(request);
 	sendQueueMutex.unlock();
@@ -124,4 +138,13 @@ void NetworkController::readResponse()
 			}
 		}
 	}
+}
+
+void NetworkController::cleanUp()
+{
+	for (auto& queue : sendQueue)
+	{
+		queue.clear();
+	}
+
 }

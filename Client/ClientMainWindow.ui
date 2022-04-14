@@ -230,6 +230,9 @@
    <property name="text">
     <string>建立</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
   </action>
   <action name="action_disconnect">
    <property name="text">
@@ -239,6 +242,9 @@
   <action name="action_register">
    <property name="text">
     <string>注册</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="action_login">

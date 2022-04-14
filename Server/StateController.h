@@ -57,6 +57,7 @@ public:
 
 signals:
 	void newSocket();
+	void stopFinished();
 
 protected:
 	void onEntry(QEvent* event) override;

@@ -21,11 +21,15 @@ StateController::StateController(QObject* parent)
 	connectingState->addTransition(connectingState, &ConnectingState::connectFinished, loginState);
 	logoutState->addTransition(ClientMainWindow::instance, &ClientMainWindow::registerTriggered, registerState);
 	logoutState->addTransition(ClientMainWindow::instance, &ClientMainWindow::loginTriggered, loginState);
+	logoutState->addTransition(ClientMainWindow::instance, &ClientMainWindow::disconnectFromHostTriggered, disconnectedState);
 	registerState->addTransition(registerState, &RegisterState::canceled, logoutState);
 	registerState->addTransition(registerState, &RegisterState::registerFinished, loginState);
+	registerState->addTransition(ClientMainWindow::instance, &ClientMainWindow::disconnectFromHostTriggered, disconnectedState);
 	loginState->addTransition(loginState, &LoginState::canceled, logoutState);
 	loginState->addTransition(loginState, &LoginState::loginFinished, mainState);
+	loginState->addTransition(ClientMainWindow::instance, &ClientMainWindow::disconnectFromHostTriggered, disconnectedState);
 	mainState->addTransition(mainState, &MainState::logout, logoutState);
+	mainState->addTransition(ClientMainWindow::instance, &ClientMainWindow::disconnectFromHostTriggered, disconnectedState);
 
 	stateMachine.setInitialState(connectingState);
 	stateMachine.start();

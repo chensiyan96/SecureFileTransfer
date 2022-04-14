@@ -103,10 +103,21 @@ void ClientMainWindow::onActionUploadFileTriggered()
         QMessageBox::information(this, u8"消息", u8"未选择要上传的文件", QMessageBox::Ok);
         return;
     }
+    bool hasWarning = false;
     for (auto fileName : fileNameVec)
     {
-        transferModel.addTask(TransferTask::Type::UPLOAD,
-            remoteFileSystemModel.getPath(fileName), localFileSystemModel.getPath(fileName));
+        auto dst = remoteFileSystemModel.getPath(fileName);
+        auto src = localFileSystemModel.getPath(fileName);
+        if (QFileInfo(dst).isDir())
+        {
+            if (!hasWarning)
+            {
+                QMessageBox::warning(this, u8"警告", u8"不支持传输文件夹", QMessageBox::Ok);
+                hasWarning = true;
+            }
+            continue;
+        }
+        transferModel.addTask(TransferTask::Type::UPLOAD, dst, src);
     }
 }
 
@@ -123,10 +134,21 @@ void ClientMainWindow::onActionDownloadFileTriggered()
         QMessageBox::information(this, u8"消息", u8"未选择要下载的文件", QMessageBox::Ok);
         return;
     }
+    bool hasWarning = false;
     for (auto fileName : fileNameVec)
     {
-        transferModel.addTask(TransferTask::Type::DOWNLOAD,
-            localFileSystemModel.getPath(fileName), remoteFileSystemModel.getPath(fileName));
+        auto dst = localFileSystemModel.getPath(fileName);
+        auto src = remoteFileSystemModel.getPath(fileName);
+        if (QFileInfo(src).isDir())
+        {
+            if (!hasWarning)
+            {
+                QMessageBox::warning(this, u8"警告", u8"不支持传输文件夹", QMessageBox::Ok);
+                hasWarning = true;
+            }
+            continue;
+        }
+        transferModel.addTask(TransferTask::Type::DOWNLOAD, dst, src);
     }
 }
 
