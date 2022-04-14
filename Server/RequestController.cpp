@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "RequestController.h"
+#include "ServerWidget.h"
 
 RequestController* RequestController::instance = nullptr;
 
@@ -8,6 +9,7 @@ RequestController::RequestController(QObject *parent)
 	: QObject(parent)
 {
 	QThreadPool::globalInstance()->setExpiryTimeout(10000);
+	fileService.accessibleDirectories = ServerWidget::instance->getAccessibleDirectories();
 }
 
 QSharedPointer<Response> RequestController::handleRequest(QSslSocket* socket, QSharedPointer<Request> request)

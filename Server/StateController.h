@@ -63,9 +63,6 @@ protected:
 	void onExit(QEvent* event) override;
 
 private:
-	void newConnection();
-
-private:
 	QScopedPointer<SslServer> server;
 	QThread serverThread;
 };

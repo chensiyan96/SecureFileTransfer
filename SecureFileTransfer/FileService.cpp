@@ -5,7 +5,6 @@
 FileService::FileService(QObject *parent)
 	: QObject(parent)
 {
-	accessibleDirectories.append("D:/test");
 }
 
 FileService::Result FileService::listFiles(QString directory, QVector<RemoteFileInfo>& infoVec)

@@ -13,6 +13,7 @@ public:
 	explicit ServerWidget(QWidget* parent = nullptr);
 
 	quint16 getPort() const;
+	QVector<QString> getAccessibleDirectories() const;
 
 	void onSetupStateEntry();
 	void onSetupStateExit();

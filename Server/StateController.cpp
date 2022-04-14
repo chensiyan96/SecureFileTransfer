@@ -117,12 +117,10 @@ void MainState::onEntry(QEvent* event)
     RequestController::instance = new RequestController;
     auto server = new SslServer;
     this->server.reset(server);
-    connect(server, &QTcpServer::newConnection, this, &MainState::newConnection);
     server->listen(QHostAddress::LocalHost, ServerWidget::instance->getPort());
     server->moveToThread(&serverThread);
     serverThread.start();
     ServerWidget::instance->onMainStateEntry();
-
 }
 
 void MainState::onExit(QEvent* event)
@@ -133,11 +131,4 @@ void MainState::onExit(QEvent* event)
     server.reset(nullptr);
     delete RequestController::instance;
     RequestController::instance = nullptr;
-}
-
-void MainState::newConnection()
-{
-    while (auto socket = dynamic_cast<QSslSocket*>(server->nextPendingConnection()))
-    {
-    }
 }

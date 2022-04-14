@@ -46,6 +46,28 @@ ServerWidget::ServerWidget(QWidget *parent)
 			setLogFile(ui.lineEdit_logPath->text());
 		});
 
+	connect(ui.pushButton_addAccess, &QPushButton::clicked,
+		[this]() {
+			auto s = QFileDialog::getExistingDirectory(this, u8"Ñ¡ÔñÄ¿Â¼");
+			QFileInfo info(s);
+			if (info.isDir())
+			{
+				ui.listWidget_access->addItem(s);
+			}
+		});
+	connect(ui.pushButton_deleteAccess, &QPushButton::clicked,
+		[this]() {
+			auto selected = ui.listWidget_access->selectedItems();
+			for (auto item : selected)
+			{
+				delete ui.listWidget_access->takeItem(ui.listWidget_access->row(item));
+			}
+		});
+	connect(ui.pushButton_clearAccess, &QPushButton::clicked,
+		[this]() {
+			ui.listWidget_access->clear();
+		});
+
 	connect(ui.pushButton_startServer, &QPushButton::clicked, this, &ServerWidget::startServer);
 	connect(ui.pushButton_stopServer, &QPushButton::clicked, this, &ServerWidget::stopServer);
 	ui.pushButton_stopServer->setDisabled(true);
@@ -54,6 +76,17 @@ ServerWidget::ServerWidget(QWidget *parent)
 quint16 ServerWidget::getPort() const
 {
 	return quint16(ui.spinBox_port->value());
+}
+
+QVector<QString> ServerWidget::getAccessibleDirectories() const
+{
+	QVector<QString> result;
+	int  i = 0;
+	while (auto item = ui.listWidget_access->item(i++))
+	{
+		result.push_back(item->text());
+	}
+	return result;
 }
 
 void ServerWidget::onSetupStateEntry()
@@ -92,10 +125,10 @@ void ServerWidget::onMainStateExit()
 
 void ServerWidget::outputLog(const QString& log)
 {
-	while (ui.listWidget_log->takeItem(100) != nullptr)
+	while (ui.listWidget_log->item(100) != nullptr)
 	{
-		ui.listWidget_log->removeItemWidget(ui.listWidget_log->takeItem(0));
-	}	
+		delete ui.listWidget_log->takeItem(0);
+	}
 	ui.listWidget_log->addItem(log);
 	if (logFile.isOpen())
 	{
