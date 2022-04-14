@@ -27,6 +27,8 @@ public:
 	Result openReadFile(QString path, QFile& file);
 	Result createWriteFile(QString path, QFile& file);
 
+	void getAccessibleDirectories(QVector<RemoteFileInfo>& infoVec);
+
 private:
 	bool isAccessible(QString path);
 	Result copyFileRecursive(QString dstDir, QString srcDir, bool force);

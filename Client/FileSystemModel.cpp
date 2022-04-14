@@ -57,6 +57,30 @@ QString FileSystemModel::getPath(QString fileName) const
 	return openedDirectory + fileName;
 }
 
+void FileSystemModel::openDirectory(const QModelIndex& index)
+{
+	int row = index.row();
+	if (infoVec[row].isDirectory)
+	{
+		openedDirectory = openedDirectory + infoVec[row].fileName + '/';
+		refresh();
+	}
+}
+
+void FileSystemModel::upperLevel()
+{
+	for (int i = openedDirectory.size() - 2; i >= 0; i--)
+	{
+		if (openedDirectory[i] == '/')
+		{
+			openedDirectory.resize(i + 1);
+			break;
+		}
+	}
+	qDebug() << openedDirectory;
+	refresh();
+}
+
 static QString getSizeString(quint64 bytes)
 {
 	auto s = QString::number(bytes);
@@ -126,9 +150,9 @@ QVariant FileSystemModel::getTextAlignment(int column) const
 	switch (column)
 	{
 	case 0: // 名称
-		return Qt::AlignLeft;
+		return Qt::AlignLeft | Qt::AlignVCenter;
 	case 1: // 大小
-		return Qt::AlignRight;
+		return Qt::AlignRight | Qt::AlignVCenter;
 	case 2: // 类型
 		return Qt::AlignCenter;
 	case 3: // 访问权限
@@ -143,24 +167,25 @@ QVariant FileSystemModel::getTextAlignment(int column) const
 LocalFileSystemModel::LocalFileSystemModel(QObject* parent)
 	: FileSystemModel(parent)
 {
+	openedDirectory = QDir::currentPath() + '/';
 	fileService.allDirectoriesAccessible = true;
-	refresh();
 }
 
 void LocalFileSystemModel::refresh()
 {
-	openedDirectory = "D:/fuck/";
 	beginResetModel();
 	fileService.listFiles(openedDirectory, infoVec);
 	endResetModel();
+	emit directoryChanged(openedDirectory);
 }
 
 void RemoteFileSystemModel::refresh()
 {
-	openedDirectory = "D:/test/";
+	infoVec.clear();
 	auto request = NetworkController::instance->newRequest<ListFilesRequest>();
 	request->directory = openedDirectory;
 	NetworkController::instance->sendRequest(request, 1);
+	emit directoryChanged(openedDirectory);
 }
 
 void RemoteFileSystemModel::checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response)
@@ -169,9 +194,25 @@ void RemoteFileSystemModel::checkResponse(QSharedPointer<Request> request, QShar
 	{
 		if (response->id > lastMessageId)
 		{
-			beginResetModel();
-			infoVec = listFilesResponse->infoVec;
-			endResetModel();
+			switch (listFilesResponse->result)
+			{
+			case ListFilesResponse::Result::SUCCESS:
+				beginResetModel();
+				infoVec = listFilesResponse->infoVec;
+				endResetModel();
+				return;
+			case ListFilesResponse::Result::INVALID_ARGUMENT:
+				QMessageBox::critical(nullptr, u8"错误", u8"文件路径无效", QMessageBox::Ok);
+				break;
+			case ListFilesResponse::Result::NO_SUCH_FILE:
+				QMessageBox::critical(nullptr, u8"错误", u8"不存在此目录", QMessageBox::Ok);
+				break;
+			case ListFilesResponse::Result::CANNOT_ACCESS:
+				QMessageBox::critical(nullptr, u8"错误", u8"不可访问该目录", QMessageBox::Ok);
+				break;
+			}
+			openedDirectory.clear();
+			refresh();
 		}
 	}
 }

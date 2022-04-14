@@ -190,6 +190,23 @@ FileService::Result FileService::createWriteFile(QString path, QFile& file)
 	return file.exists() ? FileService::Result::FILE_EXISTS : FileService::Result::CANNOT_ACCESS;
 }
 
+void FileService::getAccessibleDirectories(QVector<RemoteFileInfo>& infoVec)
+{
+	infoVec.resize(accessibleDirectories.size());
+	auto iter = accessibleDirectories.begin();
+	for (auto& info : infoVec)
+	{
+		QFileInfo file(*iter);
+		info.fileName = file.absoluteFilePath();
+		info.lastModified = file.lastModified();
+		info.size = file.size();
+		info.isDirectory = file.isDir();
+		info.isReadable = file.isReadable();
+		info.isWritable = file.isWritable();
+		++iter;
+	}
+}
+
 bool FileService::isAccessible(QString path)
 {
 	if (allDirectoriesAccessible)

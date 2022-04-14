@@ -13,22 +13,9 @@
   <property name="windowTitle">
    <string/>
   </property>
-  <layout class="QGridLayout" name="gridLayout" rowstretch="1,9,1" columnstretch="1,8,1">
+  <layout class="QGridLayout" name="gridLayout" rowstretch="1,8,1" columnstretch="1,8,1">
    <item row="0" column="1">
     <spacer name="verticalSpacer_4">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>18</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="2" column="1">
-    <spacer name="verticalSpacer_3">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
@@ -99,15 +86,15 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_port">
-       <property name="text">
-        <string>8888</string>
+      <widget class="QSpinBox" name="spinBox_port">
+       <property name="prefix">
+        <string/>
        </property>
-       <property name="maxLength">
-        <number>5</number>
+       <property name="maximum">
+        <number>65535</number>
        </property>
-       <property name="echoMode">
-        <enum>QLineEdit::Normal</enum>
+       <property name="value">
+        <number>8888</number>
        </property>
       </widget>
      </item>
@@ -169,6 +156,19 @@
       </layout>
      </item>
     </layout>
+   </item>
+   <item row="2" column="1">
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>18</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

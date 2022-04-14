@@ -151,11 +151,11 @@ QVariant TransferModel::getTextAlignment(int column) const
 	case 1: // 任务状态
 		return Qt::AlignCenter;
 	case 2: // 目标路径
-		return Qt::AlignLeft;
+		return Qt::AlignLeft | Qt::AlignVCenter;
 	case 3: // 源路径
-		return Qt::AlignLeft;
+		return Qt::AlignLeft | Qt::AlignVCenter;
 	case 4: // 进度
-		return Qt::AlignRight;
+		return Qt::AlignRight | Qt::AlignVCenter;
 	default:
 		return QVariant();
 	}

@@ -42,6 +42,16 @@ ClientMainWindow::ClientMainWindow(QWidget *parent)
     ui.tableView_remote->setModel(&remoteFileSystemModel);
     ui.tableView_transfer->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui.tableView_transfer->setModel(&transferModel);
+
+   
+    connect(ui.tableView_local, &QTableView::doubleClicked, &localFileSystemModel, &FileSystemModel::openDirectory);
+    connect(ui.tableView_remote, &QTableView::doubleClicked, &remoteFileSystemModel, &FileSystemModel::openDirectory);
+
+    connect(ui.pushButton_localDir, &QPushButton::clicked, &localFileSystemModel, &FileSystemModel::upperLevel);
+    connect(ui.pushButton_remoteDir, &QPushButton::clicked, &remoteFileSystemModel, &FileSystemModel::upperLevel);
+    connect(&localFileSystemModel, &FileSystemModel::directoryChanged, ui.lineEdit_localDir, &QLineEdit::setText);
+    connect(&remoteFileSystemModel, &FileSystemModel::directoryChanged, ui.lineEdit_remoteDir, &QLineEdit::setText);
+    localFileSystemModel.refresh();
 }
 
 void ClientMainWindow::onMainStateEntry()
@@ -132,7 +142,6 @@ void ClientMainWindow::onActionDeleteFileTriggered()
     }
     else
     {
-        QMessageBox::information(this, u8"消息", u8"请将鼠标焦点设置在本地目录窗口或远程目录窗口中", QMessageBox::Ok);
         return;
     }
     auto fileNameVec = getFileNameVec(*view, *model);

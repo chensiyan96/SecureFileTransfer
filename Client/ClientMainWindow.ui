@@ -14,14 +14,20 @@
    <string>ClientMainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="2,0">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="5,2">
     <item>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_localDir">
-        <property name="text">
-         <string>本地目录</string>
+      <item row="2" column="1">
+       <widget class="QTableView" name="tableView_remote">
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
         </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <attribute name="verticalHeaderDefaultSectionSize">
+         <number>30</number>
+        </attribute>
        </widget>
       </item>
       <item row="0" column="1">
@@ -31,7 +37,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QTableView" name="tableView_local">
         <property name="focusPolicy">
          <enum>Qt::ClickFocus</enum>
@@ -45,17 +51,53 @@
         <property name="gridStyle">
          <enum>Qt::DotLine</enum>
         </property>
+        <attribute name="verticalHeaderDefaultSectionSize">
+         <number>30</number>
+        </attribute>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QTableView" name="tableView_remote">
-        <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
-        </property>
-        <property name="selectionBehavior">
-         <enum>QAbstractItemView::SelectRows</enum>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_localDir">
+        <property name="text">
+         <string>本地目录</string>
         </property>
        </widget>
+      </item>
+      <item row="1" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLineEdit" name="lineEdit_localDir">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_localDir">
+          <property name="text">
+           <string>上一级</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLineEdit" name="lineEdit_remoteDir">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_remoteDir">
+          <property name="text">
+           <string>上一级</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -67,6 +109,12 @@
       <property name="selectionBehavior">
        <enum>QAbstractItemView::SelectRows</enum>
       </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>100</number>
+      </attribute>
+      <attribute name="verticalHeaderDefaultSectionSize">
+       <number>30</number>
+      </attribute>
      </widget>
     </item>
    </layout>

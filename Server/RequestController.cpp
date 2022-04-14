@@ -91,6 +91,12 @@ ListFilesResponse* RequestController::handleRequest(QSslSocket* socket, const Li
 		return nullptr;
 	}
 	auto response = new ListFilesResponse(request->id);
+	if (request->directory.isEmpty())
+	{
+		// 用户拉取可访问的目录
+		fileService.getAccessibleDirectories(response->infoVec);
+		return response;
+	}
 	if (!checkPath(request->directory))
 	{
 		response->result = ListFilesResponse::Result::INVALID_ARGUMENT;

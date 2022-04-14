@@ -19,6 +19,14 @@ public:
 	QString getFileName(int row) const;
 	QString getPath(QString fileName) const;
 
+	void openDirectory(const QModelIndex& index);
+	void upperLevel();
+
+	virtual void refresh() = 0;
+
+signals:
+	void directoryChanged(const QString& dir);
+
 private:
 	QVariant getDisplayData(int row, int column) const;
 	QVariant getTextAlignment(int column) const;
@@ -35,7 +43,7 @@ class LocalFileSystemModel : public FileSystemModel
 public:
 	explicit LocalFileSystemModel(QObject* parent = nullptr);
 
-	void refresh();
+	void refresh() override;
 
 public:
 	FileService fileService;
@@ -49,7 +57,7 @@ public:
 	explicit RemoteFileSystemModel(QObject* parent = nullptr)
 		: FileSystemModel(parent) {}
 
-	void refresh();
+	void refresh() override;
 	void checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response);
 
 private:

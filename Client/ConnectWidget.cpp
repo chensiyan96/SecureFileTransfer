@@ -31,7 +31,7 @@ void ConnectWidget::closeEvent(QCloseEvent* event)
 void ConnectWidget::onPushButtonConnectClicked()
 {
 	auto host = ui.lineEdit_host->text();
-	auto port = ui.lineEdit_port->text().toUShort();
+	quint16 port = ui.spinBox_port->value();
 	ui.pushButton_connect->setDisabled(true);
 	ui.label_connectionState->setText(u8"正在连接");
 	emit connectToHost(host, port);
