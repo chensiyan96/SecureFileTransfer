@@ -12,22 +12,11 @@ StateController* StateController::instance = nullptr;
 StateController::StateController(QObject* parent)
 	: QObject(parent)
 {
-    // 配置证书，请看此博客
-    // https://www.jianshu.com/p/a9497de4cbff
-
-    QFile certFile("D:/x509/server.crt");
-    certFile.open(QIODevice::ReadOnly);
-    certificate = QSslCertificate(&certFile, QSsl::Pem);
-
-    QFile keyFile("D:/x509/server.key");
-    keyFile.open(QIODevice::ReadOnly);
-    privateKey = QSslKey(&keyFile, QSsl::Rsa, QSsl::Pem, QSsl::PrivateKey, "root");
-
     setupState = new SetupState(&stateMachine);
     mainState = new MainState(&stateMachine);
 
     setupState->addTransition(setupState, &SetupState::setupFinished, mainState);
-    mainState->addTransition(mainState, &MainState::stopFinished, mainState);
+    mainState->addTransition(mainState, &MainState::stopFinished, setupState);
 
     stateMachine.setInitialState(setupState);
     stateMachine.start();
@@ -122,6 +111,7 @@ void MainState::onEntry(QEvent* event)
     server->moveToThread(&serverThread);
     serverThread.start();
     ServerWidget::instance->onMainStateEntry();
+    connect(ServerWidget::instance, &ServerWidget::stopServer, server, &QTcpServer::close);
 }
 
 void MainState::onExit(QEvent* event)

@@ -35,6 +35,8 @@ ClientMainWindow::ClientMainWindow(QWidget *parent)
     connect(ui.action_uploadFile, &QAction::triggered, this, &ClientMainWindow::onActionUploadFileTriggered);
     connect(ui.action_downloadFile, &QAction::triggered, this, &ClientMainWindow::onActionDownloadFileTriggered);
     connect(ui.action_deleteFile, &QAction::triggered, this, &ClientMainWindow::onActionDeleteFileTriggered);
+    connect(ui.action_refresh, &QAction::triggered, &localFileSystemModel, &FileSystemModel::refresh);
+    connect(ui.action_refresh, &QAction::triggered, &remoteFileSystemModel, &FileSystemModel::refresh);
 
     ui.tableView_local->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui.tableView_local->setModel(&localFileSystemModel);

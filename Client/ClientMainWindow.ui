@@ -136,6 +136,7 @@
     <addaction name="action_uploadFile"/>
     <addaction name="action_downloadFile"/>
     <addaction name="action_deleteFile"/>
+    <addaction name="action_refresh"/>
     <addaction name="separator"/>
     <addaction name="action_quit"/>
    </widget>
@@ -268,6 +269,14 @@
   <action name="action_quit">
    <property name="text">
     <string>退出</string>
+   </property>
+  </action>
+  <action name="action_refresh">
+   <property name="text">
+    <string>刷新</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
    </property>
   </action>
  </widget>
