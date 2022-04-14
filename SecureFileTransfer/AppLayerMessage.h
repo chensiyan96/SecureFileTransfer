@@ -328,7 +328,7 @@ struct SECUREFILETRANSFER_EXPORT UploadFileRequest : public Request
 	void deserialize(const char* data);
 
 	QString dst;
-	quint64 size;
+	quint64 size = 0;
 	bool force = false; // 是否强制覆盖目标文件
 };
 
@@ -382,7 +382,7 @@ struct SECUREFILETRANSFER_EXPORT DownloadFileResponse : public Response
 		SUCCESS, INVALID_ARGUMENT, CANNOT_ACCESS, CANNOT_READ
 	} result = Result::SUCCESS;
 
-	quint64 fileSize;
+	quint64 size = 0;
 };
 
 // 删除文件请求

@@ -439,15 +439,19 @@ void DownloadFileRequest::deserialize(const char* data)
 
 QByteArray DownloadFileResponse::serialize() const
 {
-	QByteArray result(9, Qt::Uninitialized);
+	QByteArray result(17, Qt::Uninitialized);
 	auto data = serializeHeader(result.data(), result.size());
 	*reinterpret_cast<Result*>(data) = this->result;
+	data += 1;
+	*reinterpret_cast<quint64*>(data) = size;
 	return result;
 }
 
 void DownloadFileResponse::deserialize(const char* data)
 {
 	result = *reinterpret_cast<const Result*>(data);
+	data += 1;
+	size = *reinterpret_cast<const quint64*>(data);
 }
 
 QByteArray RemoveFileRequest::serialize() const

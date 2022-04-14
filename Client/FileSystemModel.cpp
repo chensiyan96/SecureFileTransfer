@@ -149,7 +149,7 @@ LocalFileSystemModel::LocalFileSystemModel(QObject* parent)
 
 void LocalFileSystemModel::refresh()
 {
-	openedDirectory = "D:/";
+	openedDirectory = "D:/fuck/";
 	beginResetModel();
 	fileService.listFiles(openedDirectory, infoVec);
 	endResetModel();

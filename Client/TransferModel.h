@@ -109,4 +109,5 @@ private:
 	QLinkedList<TransferTask> taskList;
 	mutable QMutex taskListMutex;
 	UploadWorker uploadWorker;
+	DownloadWorker downloadWorker;
 };

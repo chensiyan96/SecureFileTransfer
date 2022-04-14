@@ -270,6 +270,7 @@ DownloadFileResponse* RequestController::handleRequest(QSslSocket* socket, const
 			return response;
 		}
 		task->totalSize = task->file.size();
+		response->size = task->file.size();
 		openedFilesMutex.lock();
 		openedFiles.emplace(std::make_pair(socket, request->id), task);
 		openedFilesMutex.unlock();
@@ -332,8 +333,9 @@ UploadDataResponse* RequestController::handleRequest(QSslSocket* socket, const U
 	if (n == request->data.size())
 	{
 		task.transferedSize += n;
-		if (task.transferedSize == task.totalSize)
+		if (task.transferedSize >= task.totalSize)
 		{
+			assert(task.transferedSize == task.totalSize);
 			task.file.close();
 			task.mutex.unlock();
 			openedFilesMutex.lock();
@@ -375,8 +377,9 @@ DownloadDataResponse* RequestController::handleRequest(QSslSocket* socket, const
 	if (response->data.size() == request->size)
 	{
 		task.transferedSize += request->size;
-		if (task.transferedSize == task.totalSize)
+		if (task.transferedSize >= task.totalSize)
 		{
+			assert(task.transferedSize == task.totalSize);
 			task.file.close();
 			task.mutex.unlock();
 			openedFilesMutex.lock();
