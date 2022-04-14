@@ -41,5 +41,5 @@ private:
 	QByteArray receiveBuffer;
 	QByteArray sendBuffer;
 	quint32 sendOffset = 0;
-	quint32 nextRequestId = 1;
+	std::atomic<quint32> nextRequestId = 1;
 };

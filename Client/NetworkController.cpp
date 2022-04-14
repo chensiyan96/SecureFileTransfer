@@ -75,39 +75,53 @@ void NetworkController::writeRequest()
 			sendOffset = 0;
 		}
 	}
+	if (socket->encryptedBytesToWrite() == 0)
+	{
+		readResponse();
+	}
 }
 
 void NetworkController::readResponse()
 {
-	if (receiveBuffer.isEmpty())
+	while (socket->encryptedBytesToWrite() == 0)
 	{
-		if (socket->bytesAvailable() >= 8)
+		if (receiveBuffer.isEmpty())
 		{
-			// read header
-			qDebug() << socket->bytesAvailable();
-			receiveBuffer = socket->read(8);
-			if (socket->bytesAvailable() > 0)
+			if (socket->bytesAvailable() >= 8)
 			{
-				goto READ_BODY;
+				// qDebug() << socket->bytesAvailable();
+				receiveBuffer = socket->read(8);
+				if (socket->bytesAvailable() > 0)
+				{
+					goto READ_BODY;
+				}
+			}
+			else
+			{
+				return;
 			}
 		}
-	}
-	else
-	{
-	READ_BODY:
-		int size = *reinterpret_cast<const int*>(receiveBuffer.constData() + 4) & 0x00ffffff;
-		if (socket->bytesAvailable() >= size - 8)
+		else
 		{
-			qDebug() << socket->bytesAvailable();
-			receiveBuffer.append(socket->read(size - 8));
-			auto response = Response::deserialize(receiveBuffer);
-			auto request = matchMap[response->id];
-			if (!request.isNull())
+		READ_BODY:
+			int size = *reinterpret_cast<const int*>(receiveBuffer.constData() + 4) & 0x00ffffff;
+			if (socket->bytesAvailable() >= size - 8)
 			{
-				emit receivedResponse(request, response);
+				// qDebug() << socket->bytesAvailable();
+				receiveBuffer.append(socket->read(size - 8));
+				auto response = Response::deserialize(receiveBuffer);
+				auto request = matchMap[response->id];
+				if (!request.isNull())
+				{
+					emit receivedResponse(request, response);
+				}
+				matchMap.remove(response->id);
+				receiveBuffer.clear();
 			}
-			matchMap.remove(response->id);
-			receiveBuffer.clear();
+			else
+			{
+				return;
+			}
 		}
 	}
 }

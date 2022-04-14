@@ -4,6 +4,7 @@
 #include "NetworkController.h"
 
 constexpr int NUM_COLUMNS = 5;
+constexpr int MAX_CONCURRENT_REQUESTS = 1024;
 
 TransferModel::TransferModel(QObject *parent)
 	: QAbstractTableModel(parent), uploadWorker(this)
@@ -45,6 +46,18 @@ QVariant TransferModel::headerData(int section, Qt::Orientation orientation, int
 		return section >= 0 && section < NUM_COLUMNS ? s[section] : QVariant();
 	}
 	return QAbstractTableModel::headerData(section, orientation, role);
+}
+
+void TransferModel::onMainStateEntry()
+{
+	connect(NetworkController::instance, &NetworkController::receivedResponse, &uploadWorker, &UploadWorker::checkResponse);
+
+}
+
+void TransferModel::onMainStateExit()
+{
+	NetworkController::instance->disconnect(&uploadWorker);
+
 }
 
 void TransferModel::addTask(TransferTask::Type type, QString dst, QString src)
@@ -112,8 +125,8 @@ QVariant TransferModel::getDisplayData(int row, int column) const
 			return u8"准备";
 		case TransferTask::State::TRANSFER:
 			return u8"传输";
-		case TransferTask::State::FINISH:
-			return u8"完成";
+		case TransferTask::State::FAILED:
+			return u8"失败";
 		}
 	case 2: // 目标路径
 		return iter->dst;
@@ -121,7 +134,7 @@ QVariant TransferModel::getDisplayData(int row, int column) const
 		return iter->src;
 	case 4: // 进度
 		return iter->totalSize == 0 ? QVariant() :
-			QString::number(double(iter->transferedSize) / double(iter->totalSize), 'f', 0) + "%";
+			QString::number(double(iter->transferedSize) / double(iter->totalSize) * 100.0, 'f', 0) + "%";
 	default:
 		return QVariant();
 	}
@@ -161,23 +174,26 @@ TransferModel::Worker::~Worker()
 
 void TransferModel::Worker::doTask()
 {
+	master->beginResetModel();
 	master->taskListMutex.lock();
 	for (auto iter = master->taskList.begin(); iter != master->taskList.end(); ++iter)
 	{
-		if (iter->type == type)
+		if (iter->type == type && iter->state == TransferTask::State::WAIT)
 		{
-			master->taskListMutex.unlock();
-			doTaskAt(iter);
-
-			master->beginResetModel();
-			master->taskListMutex.lock();
-			master->taskList.erase(iter);
-			master->taskListMutex.unlock();
-			master->endResetModel();
-			return;
+			prepareTaskAt(iter);
 		}
 	}
 	master->taskListMutex.unlock();
+	master->endResetModel();
+	for (auto iter : preparedQueue)
+	{
+		if (numRequests >= MAX_CONCURRENT_REQUESTS)
+		{
+			// 不能同时发送过多数据，会堵塞在socket中
+			return;
+		}
+		doTaskAt(iter);
+	}
 }
 
 TransferModel::UploadWorker::UploadWorker(TransferModel* master)
@@ -186,31 +202,85 @@ TransferModel::UploadWorker::UploadWorker(TransferModel* master)
 	connect(master, &TransferModel::newUploadTask, this, &Worker::doTask);
 }
 
-void TransferModel::UploadWorker::doTaskAt(QLinkedList<TransferTask>::iterator iter)
+void TransferModel::UploadWorker::prepareTaskAt(QLinkedList<TransferTask>::iterator iter)
 {
-	master->beginResetModel();
-	iter->state = TransferTask::State::PREPARE;
-	master->endResetModel();
-
-	QFile file(iter->src);
-	file.open(QIODevice::ReadOnly);
+	RequestRecord record = { std::make_unique<QFile>(iter->src), QSet<quint32>(), iter };
+	record.file->open(QIODevice::ReadOnly);
+	if (!record.file->isOpen())
+	{
+		iter->state = TransferTask::State::FAILED;
+		return;
+	}
 	auto request = NetworkController::instance->newRequest<UploadFileRequest>();
 	request->dst = iter->dst;
-	request->size = file.size();
+	request->size = record.file->size();
 	NetworkController::instance->sendRequest(request, 1);
 	iter->requestId = request->id;
-	
-	quint64 offset = 0;
-	while (!file.atEnd())
+	iter->state = TransferTask::State::PREPARE;
+	iter->totalSize = record.file->size();
+	requestMap.emplace(request->id, std::move(record));
+	preparedQueue.push_back(iter);
+}
+
+void TransferModel::UploadWorker::doTaskAt(QLinkedList<TransferTask>::iterator iter)
+{
+	auto& record = requestMap[iter->requestId];
+	assert(record.file != nullptr);
+	if (!record.file->isOpen())
+	{
+		// 文件关闭表示已经发送完成
+		return;
+	}
+	if (iter->state != TransferTask::State::TRANSFER)
+	{
+		master->beginResetModel();
+		iter->state = TransferTask::State::TRANSFER;
+		master->endResetModel();
+	}
+	record.file->seek(record.offset);
+	while (!record.file->atEnd())
 	{
 		auto request = NetworkController::instance->newRequest<UploadDataRequest>();
-		request->offset = offset;
-		request->parentId = iter->requestId;
-		request->data = file.read(1 << 16); // 64KB
-		offset += 1 << 16;
+		request->offset = record.offset;
+		request->parentId = iter->requestId;	
+		request->data = record.file->read(1 << 16); // 64KB
+		record.offset += request->data.size();
 		NetworkController::instance->sendRequest(request, 1);
+		record.idSet.insert(request->id);
+		if (++numRequests >= MAX_CONCURRENT_REQUESTS)
+		{
+			// 不能同时发送过多数据，会堵塞在socket中
+			return;
+		}
 	}
-	file.close();
+	record.file->close();
+	preparedQueue.pop_front();
+}
+
+void TransferModel::UploadWorker::checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response)
+{
+	if (auto uploadDataResponse = dynamic_cast<UploadDataResponse*>(response.get()))
+	{
+		master->beginResetModel();
+		auto uploadDataRequest = dynamic_cast<UploadDataRequest*>(request.get());
+		auto& record = requestMap[uploadDataRequest->parentId];
+		assert(record.file != nullptr);
+		record.idSet.remove(uploadDataResponse->id);
+		--numRequests;
+		record.iter->transferedSize += uploadDataRequest->data.size();
+
+		qDebug() << record.idSet.size();
+		if (!record.file->isOpen() && record.idSet.isEmpty())
+		{
+			master->taskListMutex.lock();
+			master->taskList.erase(record.iter);
+			requestMap.erase(uploadDataRequest->parentId);
+			master->taskListMutex.unlock();
+			emit master->taskFinished();
+		}
+		master->endResetModel();
+		doTask();
+	}
 }
 
 TransferModel::DownloadWorker::DownloadWorker(TransferModel* master)
@@ -219,7 +289,15 @@ TransferModel::DownloadWorker::DownloadWorker(TransferModel* master)
 	connect(master, &TransferModel::newDownloadTask, this, &Worker::doTask);
 }
 
+void TransferModel::DownloadWorker::prepareTaskAt(QLinkedList<TransferTask>::iterator iter)
+{
+}
+
 void TransferModel::DownloadWorker::doTaskAt(QLinkedList<TransferTask>::iterator iter)
+{
+}
+
+void TransferModel::DownloadWorker::checkResponse(QSharedPointer<Request> request, QSharedPointer<Response> response)
 {
 }
 
@@ -227,6 +305,10 @@ TransferModel::LocalCopyWorker::LocalCopyWorker(TransferModel* master)
 	: Worker(master, TransferTask::Type::LOCAL_COPY)
 {
 	connect(master, &TransferModel::newLocalCopyTask, this, &Worker::doTask);
+}
+
+void TransferModel::LocalCopyWorker::prepareTaskAt(QLinkedList<TransferTask>::iterator iter)
+{
 }
 
 void TransferModel::LocalCopyWorker::doTaskAt(QLinkedList<TransferTask>::iterator iter)
@@ -237,6 +319,10 @@ TransferModel::RemoteCopyWorker::RemoteCopyWorker(TransferModel* master)
 	: Worker(master, TransferTask::Type::REMOTE_COPY)
 {
 	connect(master, &TransferModel::newRemoteCopyTask, this, &Worker::doTask);
+}
+
+void TransferModel::RemoteCopyWorker::prepareTaskAt(QLinkedList<TransferTask>::iterator iter)
+{
 }
 
 void TransferModel::RemoteCopyWorker::doTaskAt(QLinkedList<TransferTask>::iterator iter)

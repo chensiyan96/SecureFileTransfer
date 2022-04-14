@@ -47,12 +47,16 @@ ClientMainWindow::ClientMainWindow(QWidget *parent)
 void ClientMainWindow::onMainStateEntry()
 {
     connect(NetworkController::instance, &NetworkController::receivedResponse, &remoteFileSystemModel, &RemoteFileSystemModel::checkResponse);
+    connect(&transferModel, &TransferModel::taskFinished, &localFileSystemModel, &LocalFileSystemModel::refresh);
+    connect(&transferModel, &TransferModel::taskFinished, &remoteFileSystemModel, &RemoteFileSystemModel::refresh);
+    transferModel.onMainStateEntry();
     remoteFileSystemModel.refresh();
 }
 
 void ClientMainWindow::onMainStateExit()
 {
     NetworkController::instance->disconnect(&remoteFileSystemModel);
+    transferModel.onMainStateExit();
 }
 
 static QVector<QString> getFileNameVec(const QTableView& view, const FileSystemModel& model)

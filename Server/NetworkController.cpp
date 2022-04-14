@@ -22,24 +22,40 @@ void NetworkController::start()
 
 void NetworkController::readRequest()
 {
-	if (receiveBuffer.isEmpty())
+	while (socket->encryptedBytesToWrite() == 0)
 	{
-		if (socket->bytesAvailable() >= 8)
+		if (receiveBuffer.isEmpty())
 		{
-			qDebug() << socket->bytesAvailable();
-			receiveBuffer = socket->read(8);
+			if (socket->bytesAvailable() >= 8)
+			{
+				// qDebug() << socket->bytesAvailable();
+				receiveBuffer = socket->read(8);
+				if (socket->bytesAvailable() > 0)
+				{
+					goto READ_BODY;
+				}
+			}
+			else
+			{
+				return;
+			}
 		}
-	}
-	else
-	{
-		int size = *reinterpret_cast<const int*>(receiveBuffer.constData() + 4) & 0x00ffffff;
-		if (socket->bytesAvailable() >= size - 8)
+		else
 		{
-			qDebug() << socket->bytesAvailable();
-			receiveBuffer.append(socket->read(size - 8));
-			auto request = Request::deserialize(receiveBuffer);
-			RequestController::instance->handleRequestAsync(socket.get(), request);
-			receiveBuffer.clear();
+		READ_BODY:
+			int size = *reinterpret_cast<const int*>(receiveBuffer.constData() + 4) & 0x00ffffff;
+			if (socket->bytesAvailable() >= size - 8)
+			{
+				// qDebug() << socket->bytesAvailable();
+				receiveBuffer.append(socket->read(size - 8));
+				auto request = Request::deserialize(receiveBuffer);
+				RequestController::instance->handleRequestAsync(socket.get(), request);
+				receiveBuffer.clear();
+			}
+			else
+			{
+				return;
+			}
 		}
 	}
 }
@@ -70,6 +86,10 @@ void NetworkController::writeResponse()
 			sendBuffer.clear();
 			sendOffset = 0;
 		}
+	}
+	if (socket->encryptedBytesToWrite() == 0)
+	{
+		readRequest();
 	}
 }
 
